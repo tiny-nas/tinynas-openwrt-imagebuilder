@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - NXP QorIQ PowerPC (qoriq-generic) 打包入口
+# TinyNAS 锦盒 - NXP QorIQ PowerPC (qoriq-generic) 打包入口
 # 调用 common/build-template.sh，传入 qoriq-generic 专属参数
 set -euo pipefail
 

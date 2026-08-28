@@ -1,6 +1,6 @@
 # arch/qoriq-generic
 
-TinyNAS 简盒在 **NXP QorIQ PowerPC**（qoriq-generic）架构下的打包配置。
+TinyNAS 锦盒在 **NXP QorIQ PowerPC**（qoriq-generic）架构下的打包配置。
 
 ## 基本信息
 
