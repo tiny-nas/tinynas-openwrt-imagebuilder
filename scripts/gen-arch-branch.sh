@@ -229,8 +229,9 @@ ${arch_desc}。
 - 覆盖层: \`common/tinynas-files/\`
 EOF
 
-    # 提交
-    git add "${arch_dir}/" 2>/dev/null
+    # 提交（用 -f 强制添加，因为本分支 .gitignore 已去除 /arch/ 过滤，
+    # 但 main 的 .gitignore 含 /arch/，需要 -f 才能跨分支一致性工作）
+    git add -f "${arch_dir}/"
     git -c commit.gpgsign=false commit -m "feat(arch/${name}): 初始化 ${arch_desc} 架构分支
 
 - arch/${name}/build.sh: 调用 common/build-template.sh
