@@ -1,0 +1,85 @@
+name: build
+
+on:
+  push:
+    branches:
+      - 'arch/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            openwrt_version: '23.05.3'
+          - arch: armvirt-64
+            openwrt_version: '23.05.3'
+    steps:
+      - name: Checkout (with submodules if any)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            file \
+            git \
+            rsync \
+            unzip \
+            curl \
+            wget \
+            python3 \
+            xxd \
+            perl \
+            libncurses5-dev \
+            zlib1g-dev \
+            gawk \
+            gettext \
+            swig \
+            time \
+            shellcheck
+
+      - name: Cache Image Builder
+        id: cache-ib
+        uses: actions/cache@v4
+        with:
+          path: ib-cache/
+          key: ib-${{ matrix.arch }}-${{ matrix.openwrt_version }}
+
+      - name: Run build.sh
+        id: build
+        run: |
+          chmod +x arch/${{ matrix.arch }}/build.sh
+          cd arch/${{ matrix.arch }}
+          ./build.sh stable 1.0.0
+
+      - name: Upload artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tinynas-${{ matrix.arch }}-img
+          path: arch/${{ matrix.arch }}/output/openwrt_tinynas-*.img.gz
+          if-no-files-found: warn
+
+      - name: Upload sha256
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tinynas-${{ matrix.arch }}-sha256
+          path: arch/${{ matrix.arch }}/output/*.sha256
+          if-no-files-found: warn
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tinynas-${{ matrix.arch }}-log
+          path: arch/${{ matrix.arch }}/output/*.log
+          if-no-files-found: ignore

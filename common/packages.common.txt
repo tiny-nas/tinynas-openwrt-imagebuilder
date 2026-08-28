@@ -1,0 +1,49 @@
+# TinyNAS 简盒 - 所有架构通用包列表
+# 注释行以 # 开头
+# 顺序无关，opkg 会去重
+
+# ---------- 文件系统 / 存储 ----------
+block-mount
+kmod-usb-storage
+kmod-fs-ext4
+kmod-fs-vfat
+kmod-fs-ntfs
+kmod-fs-exfat
+e2fsprogs
+fdisk
+dosfs-tools
+ntfs-3g
+
+# ---------- 网络基础 ----------
+curl
+wget
+ca-certificates
+openssl-util
+jq
+
+# ---------- Samba / 网络共享（小米电视/盒子可识别）----------
+samba4-server
+samba4-libs
+luci-app-samba4
+
+# ---------- DLNA / AirPlay ----------
+minidlna
+avahi-daemon
+
+# ---------- Web 服务 / 仪表盘 ----------
+uhttpd
+uhttpd-mod-lua
+luci-ssl
+
+# ---------- 文件管理 / 网盘（前端，dashboard 仓库构建）----------
+# FileBrowser / Alist 二进制由 tinynas-files/usr/bin/ 注入
+
+# ---------- 工具 ----------
+htop
+tmux
+vim
+
+# ---------- 系统 ----------
+fdisk
+parted
+usbutils

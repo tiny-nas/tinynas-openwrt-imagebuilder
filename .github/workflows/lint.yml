@@ -1,0 +1,63 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+      - name: Run shellcheck on build templates
+        run: |
+          set -e
+          echo "===== shellcheck common/build-template.sh ====="
+          shellcheck --severity=warning common/build-template.sh
+          echo "===== shellcheck arch/*/build.sh ====="
+          for f in arch/*/build.sh; do
+            echo "----- $f -----"
+            shellcheck --severity=warning "$f"
+          done
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: |
+            *.md
+            **/*.md
+
+  tree-check:
+    name: Directory Structure Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify arch directories match branches
+        run: |
+          set -e
+          echo "===== arch 目录列表 ====="
+          git ls-tree -d HEAD arch/ | awk '{print $4}' | sed 's|arch/||' | sed '/^$/d' > /tmp/arch-dirs.txt
+          cat /tmp/arch-dirs.txt
+          echo ""
+          echo "===== arch 远程分支列表 ====="
+          git ls-remote --heads origin "refs/heads/arch/*" | awk '{print $2}' | sed 's|refs/heads/arch/||' > /tmp/arch-branches.txt || true
+          cat /tmp/arch-branches.txt
+          echo ""
+          echo "===== 校验：每个目录都对应一个分支 ====="
+          while read -r d; do
+            [ -z "$d" ] && continue
+            if ! grep -qx "$d" /tmp/arch-branches.txt; then
+              echo "❌ 目录 arch/$d 存在，但分支 arch/$d 不存在（请创建该分支并 push）"
+              exit 1
+            fi
+            echo "✅ arch/$d ↔ branch arch/$d"
+          done < /tmp/arch-dirs.txt

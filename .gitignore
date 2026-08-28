@@ -1,0 +1,20 @@
+# Image Builder 临时下载产物（不在仓库中）
+/tmp/openwrt-imagebuilder-*
+/ib-cache/
+
+# 各架构构建产物
+arch/*/output/*.img.gz
+arch/*/output/*.img.gz.sha256
+arch/*/output/openwrt-imagebuilder-*/
+
+# 编辑器与系统
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# 构建日志
+*.log
+
+# main 分支不包含 arch 目录（arch 目录属于各自的 arch/<name> 分支）
+/arch/
