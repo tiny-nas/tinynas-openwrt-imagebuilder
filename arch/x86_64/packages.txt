@@ -1,0 +1,21 @@
+# TinyNAS 简盒 - x86_64 架构专属包
+# 在 common/packages.common.txt 基础上叠加
+
+# ---------- x86_64 专属 ----------
+kmod-e1000e              # Intel NIC
+kmod-igb                 # Intel i210/i211
+kmod-r8169                # Realtek RTL8169
+kmod-vmxnet3              # VMware NIC
+kmod-virtio-net           # KVM/QEMU virtio-net
+kmod-virtio-blk           # KVM/QEMU virtio-blk
+
+# ---------- x86 EFI/BIOS 启动 ----------
+grub2-bios-setup
+
+# ---------- 性能监控（x86 专属）----------
+lm-sensors
+smartmontools
+
+# ---------- 内核模块 ----------
+kmod-crypto-hw-padlock
+kmod-crypto-sha512
