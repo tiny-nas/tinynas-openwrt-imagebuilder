@@ -1,6 +1,6 @@
 # arch/malta-le64
 
-TinyNAS 简盒在 **MIPS Malta 评估板**（malta-le64）架构下的打包配置。
+TinyNAS 锦盒在 **MIPS Malta 评估板**（malta-le64）架构下的打包配置。
 
 ## 基本信息
 
