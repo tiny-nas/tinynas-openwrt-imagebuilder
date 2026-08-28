@@ -22,6 +22,9 @@ cd "${REPO_ROOT}"
 SYNC_FILES=(
     common/build-template.sh
     common/packages.common.txt
+    common/packages.tier-pro.txt
+    common/packages.tier-edge.txt
+    common/packages.tier-lite.txt
     common/CHANGELOG.md
     README.md
     CONTRIBUTING.md
@@ -45,6 +48,12 @@ for b in ${BRANCHES}; do
     }
     # 文件级覆盖（分支上一定已有这些文件，checkout main -- 直接覆盖）
     git checkout main -- "${SYNC_FILES[@]}" 2>/dev/null
+    # 分支专属文件（arch/<name>/）的历史品牌字修正（简盒→锦盒）
+    BRAND_FILES=$(grep -rl "简盒" arch/ 2>/dev/null || true)
+    if [ -n "${BRAND_FILES}" ]; then
+        perl -pi -e 's/简盒/锦盒/g' ${BRAND_FILES}
+        git add -f arch/
+    fi
     if git diff --cached --quiet; then
         SKIP=$((SKIP+1))
         echo "[$i/$TOTAL] ⏭️  $b: 已是最新，跳过"
