@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Marvell ARMADA 38x/37x/70xx 路由器 (mvebu-cortexa72) 打包入口
+# TinyNAS 锦盒 - Marvell ARMADA 38x/37x/70xx 路由器 (mvebu-cortexa72) 打包入口
 # 调用 common/build-template.sh，传入 mvebu-cortexa72 专属参数
 set -euo pipefail
 
