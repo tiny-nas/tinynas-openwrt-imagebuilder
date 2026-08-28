@@ -1,6 +1,6 @@
 # arch/mxs-generic
 
-TinyNAS 简盒在 **Freescale i.MX28**（mxs-generic）架构下的打包配置。
+TinyNAS 锦盒在 **Freescale i.MX28**（mxs-generic）架构下的打包配置。
 
 ## 基本信息
 
