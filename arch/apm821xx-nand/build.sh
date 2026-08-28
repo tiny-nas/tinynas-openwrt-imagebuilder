@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - AMCC APM821xx NAS/路由器 (apm821xx-nand) 打包入口
+# TinyNAS 锦盒 - AMCC APM821xx NAS/路由器 (apm821xx-nand) 打包入口
 # 调用 common/build-template.sh，传入 apm821xx-nand 专属参数
 set -euo pipefail
 
