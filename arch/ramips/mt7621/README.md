@@ -1,6 +1,6 @@
 # arch/ramips/mt7621
 
-TinyNAS 简盒在 **MediaTek MT7620/MT7621/MT76x8/RT305x/RT3883 路由器**（ramips-mt7621）架构下的打包配置。
+TinyNAS 锦盒在 **MediaTek MT7620/MT7621/MT76x8/RT305x/RT3883 路由器**（ramips-mt7621）架构下的打包配置。
 
 ## 基本信息
 
