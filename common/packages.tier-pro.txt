@@ -1,0 +1,13 @@
+# 锦盒 TinyNAS - Pro 档位包（全功能档：N1 等 1–2GB 内存设备）
+# 在 packages.common.txt 基础上叠加
+#
+# Pro = common（Samba/MiniDLNA/uhttpd/仪表盘）+ 本文件
+#       + 二进制：FileBrowser + Alist + ZeroClaw
+# （三个 Go/Rust 二进制经 tinynas-files/usr/bin/ 注入，待产物落地后
+#   以 manifest 方式按档位装配，opkg 侧无对应包）
+
+# ---------- 下载（Pro/Edge 全量）----------
+aria2
+# transmission 在 OpenWrt 按 TLS 库分包，按需启用其一：
+# transmission-daemon-openssl
+# transmission-web-openssl

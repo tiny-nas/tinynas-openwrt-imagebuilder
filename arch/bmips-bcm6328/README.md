@@ -1,6 +1,6 @@
 # arch/bmips-bcm6328
 
-TinyNAS 简盒在 **Broadcom BMIPS（运营商光猫）**（bmips-bcm6328）架构下的打包配置。
+TinyNAS 锦盒在 **Broadcom BMIPS（运营商光猫）**（bmips-bcm6328）架构下的打包配置。
 
 ## 基本信息
 
