@@ -1,6 +1,6 @@
 # arch/apm821xx-sata
 
-TinyNAS 简盒在 **AMCC APM821xx NAS/路由器**（apm821xx-sata）架构下的打包配置。
+TinyNAS 锦盒在 **AMCC APM821xx NAS/路由器**（apm821xx-sata）架构下的打包配置。
 
 ## 基本信息
 
