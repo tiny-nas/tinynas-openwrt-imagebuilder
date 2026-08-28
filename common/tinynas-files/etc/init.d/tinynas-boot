@@ -1,12 +1,12 @@
 #!/bin/sh /etc/rc.common
 
 START=99
-USE_PROCD=1
 
 boot() {
     # 1. 生成机器码（若未存在）
-    if [ ! -f /etc/tinynas/.machine_id ]; then
-        /usr/bin/tinynas-machine-id > /etc/tinynas/.machine_id 2>/dev/null
+    MID=$(/usr/bin/tinynas-machine-id 2>/dev/null)
+    if [ ! -f /etc/tinynas/.machine_id ] && [ -n "$MID" ]; then
+        printf '%s\n' "$MID" > /etc/tinynas/.machine_id
     fi
 
     # 2. 检测激活态
@@ -16,7 +16,7 @@ boot() {
         uci commit uhttpd
         /etc/init.d/uhttpd restart
         # 限制模式：Samba 只读、aria2 启用（引流）、其他服务不启动
-        uci set samba4.@samba[0].read_only='yes' 2>/dev/null || true
+        uci set samba4.@sambashare[0].read_only='yes' 2>/dev/null || true
         uci commit samba4
         /etc/init.d/samba4 restart
     else
@@ -24,6 +24,10 @@ boot() {
         uci set uhttpd.main.index_page='index.html'
         uci commit uhttpd
         /etc/init.d/uhttpd restart
+        # 激活后：Samba 共享切换为可写
+        uci set samba4.@sambashare[0].read_only='no'
+        uci commit samba4
+        /etc/init.d/samba4 restart
         # 启动 NATS consumer（SP-4 联调后启用，V1 stub 阶段先 echo）
         # /usr/bin/tinynas-nats-consumer &
     fi
