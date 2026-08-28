@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - NXP i.MX 6/7/8 SBC (imx-cortexa9) 打包入口
+# TinyNAS 锦盒 - NXP i.MX 6/7/8 SBC (imx-cortexa9) 打包入口
 # 调用 common/build-template.sh，传入 imx-cortexa9 专属参数
 set -euo pipefail
 
