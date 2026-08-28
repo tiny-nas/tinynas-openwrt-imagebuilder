@@ -1,6 +1,6 @@
 # arch/mvebu-cortexa53
 
-TinyNAS 简盒在 **Marvell ARMADA 38x/37x/70xx 路由器**（mvebu-cortexa53）架构下的打包配置。
+TinyNAS 锦盒在 **Marvell ARMADA 38x/37x/70xx 路由器**（mvebu-cortexa53）架构下的打包配置。
 
 ## 基本信息
 
