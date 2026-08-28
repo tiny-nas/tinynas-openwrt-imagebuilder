@@ -1,6 +1,6 @@
 # arch/sifiveu-generic
 
-TinyNAS 简盒在 **SiFive U54/U74 RISC-V**（sifiveu-generic）架构下的打包配置。
+TinyNAS 锦盒在 **SiFive U54/U74 RISC-V**（sifiveu-generic）架构下的打包配置。
 
 ## 基本信息
 
