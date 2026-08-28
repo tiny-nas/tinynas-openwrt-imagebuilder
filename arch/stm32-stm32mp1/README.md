@@ -1,6 +1,6 @@
 # arch/stm32-stm32mp1
 
-TinyNAS 简盒在 **STMicro STM32MP1**（stm32-stm32mp1）架构下的打包配置。
+TinyNAS 锦盒在 **STMicro STM32MP1**（stm32-stm32mp1）架构下的打包配置。
 
 ## 基本信息
 

@@ -1,8 +1,9 @@
-# TinyNAS 简盒 · OpenWrt Image Builder 集成层
+# 锦盒 TinyNAS · OpenWrt Image Builder 集成层
 
-[TinyNAS 简盒](https://github.com/tinynas-labs) 是面向斐讯 N1 / 迷你主机 / 家用路由器的"轻量 NAS + AI 助理"家庭算力网关系统。本仓库是 TinyNAS 在 **OpenWrt 官方 Image Builder** 上的多架构集成层。
+[锦盒 TinyNAS](https://github.com/tinynas-labs) 是面向斐讯 N1 / 迷你主机 / 家用路由器的"轻量 NAS + AI 助理"家庭算力网关系统。本仓库是 TinyNAS 在 **OpenWrt 官方 Image Builder** 上的多架构集成层。
 
-> 项目代号：**`TinyNAS`**（中文：**简盒**）—— Tiny 一眼传递硬件小巧，NAS 一眼传递品类。
+> 项目代号：**`TinyNAS`**（中文：**锦盒**）—— Tiny 一眼传递硬件小巧，NAS 一眼传递品类。
+> 主标语：**锦盒 TinyNAS —— 斐讯 N1 变身家庭 AI 私有云**
 > 文档详见 [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt) 与 [品牌主页](https://github.com/tinynas-labs)。
 
 ---
@@ -182,7 +183,7 @@
 ## 仓库结构（单仓多分支）
 
 ```
-tinynas-labs/openwrt-imagebuilder
+tinynas-labs/tinynas-openwrt-imagebuilder
 ├── README.md                  ← 本文件
 ├── CONTRIBUTING.md            ← 如何新增架构
 ├── .github/workflows/         ← GitHub Actions
@@ -212,15 +213,32 @@ tinynas-labs/openwrt-imagebuilder
 
 ## 镜像命名规范
 
-二次定制后产物（与 `tinynas-labs/amlogic-s9xxx-openwrt` 一致）：
+二次定制后产物（与 `tinynas-labs/amlogic-s9xxx-openwrt` 一致，第 2 段带功能档位）：
 
 ```
-openwrt_tinynas-<设备>_v<SemVer>-<渠道>_<YYYY.MM.DD>.img.gz
- └──┘ └──────┘ └─┘ └────┘ └──────┘ └──────┘
- openwrt 品牌+设备  版本   渠道    构建日期
+openwrt_tinynas-<档位>-<设备>_v<SemVer>-<渠道>_<YYYY.MM.DD>.img.gz
+ └──┘ └─────┬─────┘ └─┘ └────┘ └──────┘ └──────┘
+ openwrt  档位+设备     版本   渠道    构建日期
 ```
 
-例如：`openwrt_tinynas-x86_64_v1.0.0-stable_2026.08.28.img.gz`
+例如：`openwrt_tinynas-pro-x86_64_v1.0.0-stable_2026.08.28.img.gz`
+
+## 产品档位（Pro / Edge / Lite）
+
+打包时通过 `TIER` 选择功能档位，包集合三层叠加：`packages.common.txt`（全档共享）+ `packages.tier-<档位>.txt`（档位差异）+ `arch/<name>/packages.txt`（硬件驱动）。
+
+| 档位 | 推荐硬件 | 内存档 | 功能差异 |
+|------|---------|--------|---------|
+| **Pro** | N1（eMMC+千兆，建议 2GB） | 1–2GB | 全功能：Alist 网盘聚合 + FileBrowser + ZeroClaw AI |
+| **Edge** | 小米盒子3 / 魔百盒（U盘+百兆） | 1GB | 无 Alist/FileBrowser，文件管理走 CGI，保留 ZeroClaw AI |
+| **Lite** | 路由器（128–256MB RAM） | 128–256MB | 再去 ZeroClaw（AI），纯轻 NAS + 下载机（仅 aria2，Samba 建议换 ksmbd） |
+
+```bash
+# 用法：环境变量传入（默认 pro；arch/<name>/build.sh 可按设备写死第 7 参数）
+TIER=lite ./build.sh stable 1.0.0
+```
+
+构建时会将档位写入固件 `/etc/tinynas/tier`，dashboard 据此隐藏不可用模块（Lite 隐藏智能体中心、Edge 隐藏网盘聚合），同一份前端代码全档复用。
 
 ## 快速开始
 
@@ -243,9 +261,9 @@ ls output/openwrt_tinynas-x86_64_v*.img.gz
 | 仓库 | 用途 |
 |------|------|
 | [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt) | 斐讯 N1 / 小米盒子3 等 Amlogic S9xxx 系列（基于 ophub 上游 fork） |
-| `tinynas-labs/openwrt-imagebuilder`（本仓库） | 92 个 OpenWrt 官方架构（基于 OpenWrt 官方 Image Builder） |
+| `tinynas-labs/tinynas-openwrt-imagebuilder`（本仓库） | 92 个 OpenWrt 官方架构（基于 OpenWrt 官方 Image Builder） |
 | `tinynas-labs/armbian-build`（未来） | 非 OpenWrt 平台（基于 Armbian） |
-| `tinynas-labs/dashboard` | 仪表盘前端（Vue3 CDN SPA） |
+| `tinynas-labs/dashboard` | 仪表盘前端（Vue3 SPA，静态资源本地内置零外链） |
 | `tinynas-labs/pairing` | 云端配对服务（Rust + Axum + SQLite） |
 
 所有 fork 仓共享 `common/tinynas-files/` 覆盖层，一次改动全平台生效。
