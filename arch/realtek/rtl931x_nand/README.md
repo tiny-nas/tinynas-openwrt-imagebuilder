@@ -1,6 +1,6 @@
 # arch/realtek/rtl931x_nand
 
-TinyNAS 简盒在 **Realtek RTL838x/RTL839x 交换机**（realtek-rtl931x_nand）架构下的打包配置。
+TinyNAS 锦盒在 **Realtek RTL838x/RTL839x 交换机**（realtek-rtl931x_nand）架构下的打包配置。
 
 ## 基本信息
 
