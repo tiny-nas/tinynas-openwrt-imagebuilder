@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Lantiq xRX/xWAY DSL 路由器 (lantiq-xway) 打包入口
+# TinyNAS 锦盒 - Lantiq xRX/xWAY DSL 路由器 (lantiq-xway) 打包入口
 # 调用 common/build-template.sh，传入 lantiq-xway 专属参数
 set -euo pipefail
 

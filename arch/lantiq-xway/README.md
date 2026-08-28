@@ -1,6 +1,6 @@
 # arch/lantiq-xway
 
-TinyNAS 简盒在 **Lantiq xRX/xWAY DSL 路由器**（lantiq-xway）架构下的打包配置。
+TinyNAS 锦盒在 **Lantiq xRX/xWAY DSL 路由器**（lantiq-xway）架构下的打包配置。
 
 ## 基本信息
 
