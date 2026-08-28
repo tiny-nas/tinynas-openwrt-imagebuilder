@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - OpenWrt Image Builder 打包模板
+# 锦盒 TinyNAS - OpenWrt Image Builder 打包模板
 # 由各 arch/<name>/build.sh 调用，传入：
 #   $1 = OPENWRT_TARGET_DIR  (例如 "x86_64" / "ramips/mt7621" / "armvirt/64")
-#   $2 = OPENWRT_VERSION     (例如 "23.05.3")
+#   $2 = OPENWRT_VERSION     (例如 "25.12.5")
 #   $3 = PROFILE             (例如 "generic" / "xiaomi_router_ac2100")
 #   $4 = DEVICE_TAG          (用于产物名，如 "x86_64" / "ramips-mt7621")
 #   $5 = CHANNEL             (默认 "stable")
 #   $6 = VERSION             (默认 "1.0.0")
+#   $7 = TIER                (默认 "pro"；或用环境变量 TIER=lite 覆盖)
 #
-# 产物命名：openwrt_tinynas-${DEVICE_TAG}_v${VERSION}-${CHANNEL}_${DATE}.img.gz
+# 产物命名：openwrt_tinynas-${TIER}-${DEVICE_TAG}_v${VERSION}-${CHANNEL}_${DATE}.img.gz
 set -euo pipefail
 
 # --------- 参数与默认值 ---------
@@ -18,6 +19,7 @@ PROFILE="${3:-generic}"
 DEVICE_TAG="${4:-x86_64}"
 CHANNEL="${5:-stable}"
 VERSION="${6:-1.0.0}"
+TIER="${7:-${TIER:-pro}}"
 DATE=$(date +%Y.%m.%d)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,7 +43,8 @@ warn() { echo -e "${YELLOW}[!]${NC} $*"; }
 fail() { echo -e "${RED}[x]${NC} $*" >&2; exit 1; }
 
 # --------- 1. 前置检查 ---------
-log "TinyNAS 简盒 打包流程启动"
+log "TinyNAS 锦盒 打包流程启动"
+log "  档位         : ${TIER}（pro / edge / lite）"
 log "  架构        : ${DEVICE_TAG}"
 log "  OpenWrt 版本: ${OPENWRT_VERSION}"
 log "  Image Builder: ${TARGET_DIR}"
@@ -100,13 +103,25 @@ if [ -d "${ARCH_DIR}/files-overlay" ]; then
     cp -a "${ARCH_DIR}/files-overlay/." files/
 fi
 
-# --------- 4. 拼装 PACKAGES ---------
+# 写入运行时档位/版本标识（dashboard 读取 /etc/tinynas/tier 隐藏不可用模块）
+mkdir -p files/etc/tinynas
+echo "BRAND=tinynas"    > files/etc/tinynas/brand
+echo "TIER=${TIER}"     > files/etc/tinynas/tier
+echo "DEVICE=${DEVICE_TAG}" > files/etc/tinynas/device
+echo "VERSION=v${VERSION}"  > files/etc/tinynas/version
+echo "CHANNEL=${CHANNEL}"   > files/etc/tinynas/channel
+echo "BUILD=${DATE}"        > files/etc/tinynas/build
+
+# --------- 4. 拼装 PACKAGES（common + tier + arch 三层叠加）---------
 COMMON_PKGS=$(grep -v '^#' "${SCRIPT_DIR}/packages.common.txt" | tr '\n' ' ')
+TIER_PKGS_FILE="${SCRIPT_DIR}/packages.tier-${TIER}.txt"
+[ -f "${TIER_PKGS_FILE}" ] || fail "未找到档位包列表 ${TIER_PKGS_FILE}（合法档位：pro / edge / lite）"
+TIER_PKGS=$(grep -v '^#' "${TIER_PKGS_FILE}" | tr '\n' ' ')
 ARCH_PKGS=""
 if [ -f "${ARCH_DIR}/packages.txt" ]; then
     ARCH_PKGS=$(grep -v '^#' "${ARCH_DIR}/packages.txt" | tr '\n' ' ')
 fi
-PACKAGES="${COMMON_PKGS} ${ARCH_PKGS}"
+PACKAGES="${COMMON_PKGS} ${TIER_PKGS} ${ARCH_PKGS}"
 log "预装包（共 $(echo ${PACKAGES} | wc -w | tr -d ' ') 个）: ${PACKAGES}"
 
 # --------- 5. 跑 Image Builder ---------
@@ -119,7 +134,7 @@ make image \
 
 # --------- 6. 收尾：重命名 + sha256 ---------
 mkdir -p "${OUTPUT_DIR}"
-OUT_NAME="openwrt_tinynas-${DEVICE_TAG}_v${VERSION}-${CHANNEL}_${DATE}.img.gz"
+OUT_NAME="openwrt_tinynas-${TIER}-${DEVICE_TAG}_v${VERSION}-${CHANNEL}_${DATE}.img.gz"
 PRODUCED_RAW=$(ls -t bin/targets/${TARGET_DIR}/openwrt-*${DEVICE_TAG}*.img.gz 2>/dev/null | head -n1)
 
 if [ -z "${PRODUCED_RAW:-}" ]; then
