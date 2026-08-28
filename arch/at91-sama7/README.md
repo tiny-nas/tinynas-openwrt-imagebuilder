@@ -1,6 +1,6 @@
 # arch/at91-sama7
 
-TinyNAS 简盒在 **Microchip AT91 SAM9/SAMA5/SAMA7**（at91-sama7）架构下的打包配置。
+TinyNAS 锦盒在 **Microchip AT91 SAM9/SAMA5/SAMA7**（at91-sama7）架构下的打包配置。
 
 ## 基本信息
 
