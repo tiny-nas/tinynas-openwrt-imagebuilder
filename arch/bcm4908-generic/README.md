@@ -1,6 +1,6 @@
 # arch/bcm4908-generic
 
-TinyNAS 简盒在 **Broadcom BCM4908 路由器**（bcm4908-generic）架构下的打包配置。
+TinyNAS 锦盒在 **Broadcom BCM4908 路由器**（bcm4908-generic）架构下的打包配置。
 
 ## 基本信息
 
