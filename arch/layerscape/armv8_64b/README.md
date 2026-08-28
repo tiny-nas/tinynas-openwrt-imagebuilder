@@ -1,6 +1,6 @@
 # arch/layerscape/armv8_64b
 
-TinyNAS 简盒在 **NXP Layerscape 服务器级 ARM**（layerscape-armv8_64b）架构下的打包配置。
+TinyNAS 锦盒在 **NXP Layerscape 服务器级 ARM**（layerscape-armv8_64b）架构下的打包配置。
 
 ## 基本信息
 

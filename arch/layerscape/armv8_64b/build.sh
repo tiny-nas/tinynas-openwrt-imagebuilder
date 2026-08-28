@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - NXP Layerscape 服务器级 ARM (layerscape-armv8_64b) 打包入口
+# TinyNAS 锦盒 - NXP Layerscape 服务器级 ARM (layerscape-armv8_64b) 打包入口
 # 调用 common/build-template.sh，传入 layerscape-armv8_64b 专属参数
 set -euo pipefail
 
