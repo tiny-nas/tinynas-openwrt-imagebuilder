@@ -1,0 +1,10 @@
+config samba
+    option name 'TINYNAS'
+    option workgroup 'WORKGROUP'
+
+config sambashare
+    option name 'share'
+    option path '/mnt/usb/share'
+    option read_only 'yes'
+    option guest_ok 'yes'
+    option browseable 'yes'

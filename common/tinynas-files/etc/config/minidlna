@@ -1,0 +1,7 @@
+config minidlna 'config'
+    option friendly_name '锦盒-媒体库'
+    option media_dir 'V,/mnt/usb/share/Movies'
+    option media_dir 'A,/mnt/usb/share/Music'
+    option media_dir 'P,/mnt/usb/share/Photos'
+    option inotify '1'
+    option notify_interval '60'

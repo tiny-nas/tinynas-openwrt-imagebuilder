@@ -1,0 +1,35 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+
+boot() {
+    # 1. 生成机器码（若未存在）
+    if [ ! -f /etc/tinynas/.machine_id ]; then
+        /usr/bin/tinynas-machine-id > /etc/tinynas/.machine_id 2>/dev/null
+    fi
+
+    # 2. 检测激活态
+    if [ ! -f /etc/tinynas/.activated ]; then
+        # 未激活：劫持 80 端口到向导页
+        uci set uhttpd.main.index_page='tinynas-wizard.html'
+        uci commit uhttpd
+        /etc/init.d/uhttpd restart
+        # 限制模式：Samba 只读、aria2 启用（引流）、其他服务不启动
+        uci set samba4.@samba[0].read_only='yes' 2>/dev/null || true
+        uci commit samba4
+        /etc/init.d/samba4 restart
+    else
+        # 已激活：恢复主仪表盘
+        uci set uhttpd.main.index_page='index.html'
+        uci commit uhttpd
+        /etc/init.d/uhttpd restart
+        # 启动 NATS consumer（SP-4 联调后启用，V1 stub 阶段先 echo）
+        # /usr/bin/tinynas-nats-consumer &
+    fi
+
+    # 3. aria2 密钥：rpc-secret 为空时生成每设备独立 UUID 并写入
+    if grep -q '^rpc-secret=$' /etc/aria2.conf 2>/dev/null; then
+        sed -i "s|^rpc-secret=$|rpc-secret=$(cat /proc/sys/kernel/random/uuid)|" /etc/aria2.conf
+    fi
+}

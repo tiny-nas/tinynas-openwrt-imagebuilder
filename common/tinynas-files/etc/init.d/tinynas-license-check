@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+START=98
+USE_PROCD=1
+
+start() {
+    if [ -f /etc/tinynas/.activated ]; then
+        SAVED_ID=$(grep '^machine_id=' /etc/tinynas/.activated | cut -d'=' -f2)
+        CURRENT_ID=$(cat /etc/tinynas/.machine_id 2>/dev/null)
+        if [ "$SAVED_ID" != "$CURRENT_ID" ]; then
+            logger -t tinynas "license check failed: hardware mismatch (saved=$SAVED_ID current=$CURRENT_ID)"
+            rm -f /etc/tinynas/.activated
+            # 触发首次启动向导
+            /etc/init.d/tinynas-boot boot
+        fi
+    fi
+}
