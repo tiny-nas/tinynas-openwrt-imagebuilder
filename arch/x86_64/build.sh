@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - x86_64 架构打包入口
+# TinyNAS 锦盒 - x86_64 架构打包入口
 # 调用 common/build-template.sh，传入 x86_64 专属参数
 set -euo pipefail
 

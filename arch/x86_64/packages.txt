@@ -1,4 +1,4 @@
-# TinyNAS 简盒 - x86_64 架构专属包
+# TinyNAS 锦盒 - x86_64 架构专属包
 # 在 common/packages.common.txt 基础上叠加
 
 # ---------- x86_64 专属 ----------
