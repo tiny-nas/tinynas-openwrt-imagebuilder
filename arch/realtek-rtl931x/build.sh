@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Realtek RTL838x/RTL839x 交换机 (realtek-rtl931x) 打包入口
+# TinyNAS 锦盒 - Realtek RTL838x/RTL839x 交换机 (realtek-rtl931x) 打包入口
 # 调用 common/build-template.sh，传入 realtek-rtl931x 专属参数
 set -euo pipefail
 
