@@ -152,7 +152,7 @@ gen_branch() {
     # build.sh
     cat > "${arch_dir}/build.sh" <<EOF
 #!/usr/bin/env bash
-# TinyNAS 简盒 - ${arch_desc} (${name}) 打包入口
+# TinyNAS 锦盒 - ${arch_desc} (${name}) 打包入口
 # 调用 common/build-template.sh，传入 ${name} 专属参数
 set -euo pipefail
 
@@ -180,7 +180,7 @@ EOF
 
     # packages.txt（占位，后续按需填充）
     cat > "${arch_dir}/packages.txt" <<EOF
-# TinyNAS 简盒 - ${name} 架构专属包
+# TinyNAS 锦盒 - ${name} 架构专属包
 # 在 common/packages.common.txt 基础上叠加
 # （待验证后补充 NIC/SOC 专属驱动）
 EOF
@@ -189,7 +189,7 @@ EOF
     cat > "${arch_dir}/README.md" <<EOF
 # arch/$(norm_branch "$name")
 
-TinyNAS 简盒在 **${arch_desc}**（${name}）架构下的打包配置。
+TinyNAS 锦盒在 **${arch_desc}**（${name}）架构下的打包配置。
 
 ## 基本信息
 

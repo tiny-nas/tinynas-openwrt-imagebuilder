@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - 全志 D1 (RISC-V) (d1-generic) 打包入口
+# TinyNAS 锦盒 - 全志 D1 (RISC-V) (d1-generic) 打包入口
 # 调用 common/build-template.sh，传入 d1-generic 专属参数
 set -euo pipefail
 

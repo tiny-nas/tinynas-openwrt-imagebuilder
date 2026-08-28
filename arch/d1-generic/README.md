@@ -1,6 +1,6 @@
 # arch/d1-generic
 
-TinyNAS 简盒在 **全志 D1 (RISC-V)**（d1-generic）架构下的打包配置。
+TinyNAS 锦盒在 **全志 D1 (RISC-V)**（d1-generic）架构下的打包配置。
 
 ## 基本信息
 
