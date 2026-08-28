@@ -1,0 +1,5 @@
+#!/bin/sh
+# 占位：SP-3 实现 NATS JetStream Durable Consumer 逻辑
+# 当前仅 echo 状态，SP-3 后替换为实际订阅
+echo "tinynas-nats-consumer: stub (V1.0 启用 SP-3 实现)" >&2
+sleep 3600
