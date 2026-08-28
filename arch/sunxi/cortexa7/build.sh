@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Allwinner ARM9/A7/A8/A53 SBC (sunxi-cortexa7) 打包入口
+# TinyNAS 锦盒 - Allwinner ARM9/A7/A8/A53 SBC (sunxi-cortexa7) 打包入口
 # 调用 common/build-template.sh，传入 sunxi-cortexa7 专属参数
 set -euo pipefail
 
