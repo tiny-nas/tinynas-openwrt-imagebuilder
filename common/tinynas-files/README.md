@@ -1,6 +1,6 @@
 # `tinynas-files/` 覆盖层
 
-这是 **TinyNAS 简盒** 的 rootfs 覆盖层，会被各架构打包脚本注入到 Image Builder 的 `files/` 目录，最终合并进产出的 OpenWrt 固件。
+这是 **锦盒 TinyNAS** 的 rootfs 覆盖层，会被各架构打包脚本注入到 Image Builder 的 `files/` 目录，最终合并进产出的 OpenWrt 固件。
 
 ## 目录结构
 
@@ -11,7 +11,7 @@ tinynas-files/
 │   ├── config/          ← Samba、MiniDLNA、uHTTPd 预置配置
 │   └── init.d/          ← 首次启动向导 + 激活劫持脚本
 ├── www/
-│   ├── tinynas/         ← 仪表盘前端（Vue3 CDN SPA）
+│   ├── tinynas/         ← 仪表盘前端（Vue3 SPA，静态资源本地内置零外链）
 │   │                     由 tinynas-labs/dashboard 仓库构建后产物
 │   └── tinynas-wizard.html  ← 首次启动向导页
 ├── cgi-bin/             ← 状态/文件/激活 API
