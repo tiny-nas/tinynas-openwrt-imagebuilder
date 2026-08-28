@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Intel XScale IXP4xx (ixp4xx-generic) 打包入口
+# TinyNAS 锦盒 - Intel XScale IXP4xx (ixp4xx-generic) 打包入口
 # 调用 common/build-template.sh，传入 ixp4xx-generic 专属参数
 set -euo pipefail
 

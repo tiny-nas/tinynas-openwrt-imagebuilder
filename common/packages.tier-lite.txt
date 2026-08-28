@@ -1,0 +1,10 @@
+# 锦盒 TinyNAS - Lite 档位包（路由器等 128–256MB 内存设备）
+# 在 packages.common.txt 基础上叠加
+#
+# Lite = Edge 再去掉 ZeroClaw（AI），纯轻 NAS + 下载机
+# 注意：128MB RAM 机型建议媒体库控制在几千文件内；
+#       进阶可用内核态 ksmbd 替代 samba4 省 RAM：
+#       （在 arch packages.txt 中以 ksmbd-server 替换，common 不动）
+
+# ---------- 下载（Lite 仅保留 aria2，transmission 偏重不进该档）----------
+aria2
