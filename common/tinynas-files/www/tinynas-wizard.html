@@ -26,7 +26,7 @@ h1 { font-size:24px; margin:0 0 8px; color:#F59E0B; }
     <div class="sub">首次激活 — 请把下方 16 位机器码发给卖家获取 12 位激活码</div>
 
     <div class="machine-id" id="mid">加载中…</div>
-    <button class="copy-btn" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.getElementById('mid').textContent).then(()=>{this.textContent='已复制 ✓';setTimeout(()=>this.textContent='复制机器码',1500)})">复制机器码</button>
+    <button class="copy-btn" style="margin-top:8px;" onclick="copyMachineId(this)">复制机器码</button>
 
     <div style="margin-top:24px;">
         <label style="font-size:13px; color:#94A3B8;">激活码（12 位）</label>
@@ -43,6 +43,21 @@ h1 { font-size:24px; margin:0 0 8px; color:#F59E0B; }
 
 <script>
 fetch('/cgi-bin/machine-id').then(r=>r.json()).then(d=>{document.getElementById('mid').textContent=d.machine_id}).catch(e=>{document.getElementById('mid').textContent='读取失败'});
+
+function copyMachineId(btn){
+    var text=document.getElementById('mid').textContent;
+    function ok(){btn.textContent='已复制 ✓';setTimeout(function(){btn.textContent='复制机器码'},1500);}
+    if(navigator.clipboard&&window.isSecureContext){
+        navigator.clipboard.writeText(text).then(ok,function(){fallback()});
+    }else{fallback();}
+    function fallback(){
+        var ta=document.createElement('textarea');
+        ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+        document.body.appendChild(ta);ta.select();
+        try{document.execCommand('copy');ok();}catch(e){btn.textContent='请手动选择复制';}
+        document.body.removeChild(ta);
+    }
+}
 
 function doActivate(){
     const code=document.getElementById('code').value.trim();
