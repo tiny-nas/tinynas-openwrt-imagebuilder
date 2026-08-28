@@ -17,4 +17,3 @@ arch/*/output/openwrt-imagebuilder-*/
 *.log
 
 # main 分支不包含 arch 目录（arch 目录属于各自的 arch/<name> 分支）
-/arch/
