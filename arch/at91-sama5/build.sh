@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Microchip AT91 SAM9/SAMA5/SAMA7 (at91-sama5) 打包入口
+# TinyNAS 锦盒 - Microchip AT91 SAM9/SAMA5/SAMA7 (at91-sama5) 打包入口
 # 调用 common/build-template.sh，传入 at91-sama5 专属参数
 set -euo pipefail
 
