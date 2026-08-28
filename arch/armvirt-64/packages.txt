@@ -1,0 +1,15 @@
+# TinyNAS 简盒 - armvirt-64 架构专属包
+# 在 common/packages.common.txt 基础上叠加
+
+# ---------- ARMv8 通用 NIC ----------
+kmod-dwmac              # DesignWare MAC（多数 ARM SoC 集成）
+kmod-stmmac             # STMicro MAC
+kmod-ravb               # Renesas RAVB（备用）
+
+# ---------- ARMv8 KVM ----------
+kmod-virtio-net
+kmod-virtio-blk
+kmod-virtio-console
+
+# ---------- 启动支持 ----------
+# armvirt 默认走 EFI/GRUB，无需 grub2-bios-setup
