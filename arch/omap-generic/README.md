@@ -1,6 +1,6 @@
 # arch/omap-generic
 
-TinyNAS 简盒在 **TI OMAP**（omap-generic）架构下的打包配置。
+TinyNAS 锦盒在 **TI OMAP**（omap-generic）架构下的打包配置。
 
 ## 基本信息
 
