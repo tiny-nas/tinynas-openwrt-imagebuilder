@@ -1,6 +1,6 @@
 # arch/microchipsw-lan969x
 
-TinyNAS 简盒在 **Microchip LAN969x 交换机**（microchipsw-lan969x）架构下的打包配置。
+TinyNAS 锦盒在 **Microchip LAN969x 交换机**（microchipsw-lan969x）架构下的打包配置。
 
 ## 基本信息
 

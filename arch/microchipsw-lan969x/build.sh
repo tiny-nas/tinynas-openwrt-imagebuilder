@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Microchip LAN969x 交换机 (microchipsw-lan969x) 打包入口
+# TinyNAS 锦盒 - Microchip LAN969x 交换机 (microchipsw-lan969x) 打包入口
 # 调用 common/build-template.sh，传入 microchipsw-lan969x 专属参数
 set -euo pipefail
 
