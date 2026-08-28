@@ -1,6 +1,6 @@
 # arch/ipq40xx/mikrotik
 
-TinyNAS 简盒在 **高通 IPQ40xx 路由器**（ipq40xx-mikrotik）架构下的打包配置。
+TinyNAS 锦盒在 **高通 IPQ40xx 路由器**（ipq40xx-mikrotik）架构下的打包配置。
 
 ## 基本信息
 
