@@ -1,6 +1,6 @@
 # arch/rockchip-armv8
 
-TinyNAS 简盒在 **瑞芯微 RK3328/RK3399/RK3568 等 ARMv8 SBC**（rockchip-armv8）架构下的打包配置。
+TinyNAS 锦盒在 **瑞芯微 RK3328/RK3399/RK3568 等 ARMv8 SBC**（rockchip-armv8）架构下的打包配置。
 
 ## 基本信息
 

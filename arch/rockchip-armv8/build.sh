@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - 瑞芯微 RK3328/RK3399/RK3568 等 ARMv8 SBC (rockchip-armv8) 打包入口
+# TinyNAS 锦盒 - 瑞芯微 RK3328/RK3399/RK3568 等 ARMv8 SBC (rockchip-armv8) 打包入口
 # 调用 common/build-template.sh，传入 rockchip-armv8 专属参数
 set -euo pipefail
 
