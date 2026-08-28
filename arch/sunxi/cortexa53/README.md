@@ -1,6 +1,6 @@
 # arch/sunxi/cortexa53
 
-TinyNAS 简盒在 **Allwinner ARM9/A7/A8/A53 SBC**（sunxi-cortexa53）架构下的打包配置。
+TinyNAS 锦盒在 **Allwinner ARM9/A7/A8/A53 SBC**（sunxi-cortexa53）架构下的打包配置。
 
 ## 基本信息
 
