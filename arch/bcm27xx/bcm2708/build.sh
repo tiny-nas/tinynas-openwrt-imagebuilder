@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - 树莓派 1-5（bcm2708/2709/2710/2711/2712） (bcm27xx-bcm2708) 打包入口
+# TinyNAS 锦盒 - 树莓派 1-5（bcm2708/2709/2710/2711/2712） (bcm27xx-bcm2708) 打包入口
 # 调用 common/build-template.sh，传入 bcm27xx-bcm2708 专属参数
 set -euo pipefail
 
