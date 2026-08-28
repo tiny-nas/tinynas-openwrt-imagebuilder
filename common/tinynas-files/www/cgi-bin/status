@@ -1,0 +1,35 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-store"
+echo ""
+
+CPU=$(cat /proc/loadavg | awk '{print $1}')
+MEM_TOTAL=$(free | grep Mem | awk '{print $2}')
+MEM_USED=$(free | grep Mem | awk '{print $3}')
+MEM_PCT=$((MEM_USED * 100 / MEM_TOTAL))
+DISK_USED=$(df /mnt/usb 2>/dev/null | tail -1 | awk '{print $3}')
+DISK_TOTAL=$(df /mnt/usb 2>/dev/null | tail -1 | awk '{print $2}')
+[ -z "$DISK_TOTAL" ] || [ "$DISK_TOTAL" -eq 0 ] && DISK_TOTAL=1
+
+ACTIVATED="false"
+[ -f /etc/tinynas/.activated ] && ACTIVATED="true"
+
+TIER=$(grep '^TIER=' /etc/tinynas/brand | cut -d'=' -f2)
+DEVICE=$(grep '^DEVICE=' /etc/tinynas/brand | cut -d'=' -f2)
+
+cat <<JSON
+{
+  "activated": $ACTIVATED,
+  "tier": "$TIER",
+  "device": "$DEVICE",
+  "cpu_load": "$CPU",
+  "mem_pct": $MEM_PCT,
+  "disk_used": $DISK_USED,
+  "disk_total": $DISK_TOTAL,
+  "services": {
+    "samba": "running",
+    "dlna": "running",
+    "aria2": "running"
+  }
+}
+JSON

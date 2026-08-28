@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-store"
+echo ""
+echo '{"error":"delete: V1.0 待 SP-2 仪表盘集成"}'

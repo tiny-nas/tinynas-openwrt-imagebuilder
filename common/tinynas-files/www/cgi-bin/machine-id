@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-store"
+echo ""
+MACHINE_ID=$(/usr/bin/tinynas-machine-id)
+echo "{\"machine_id\":\"$MACHINE_ID\"}"

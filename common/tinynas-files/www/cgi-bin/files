@@ -1,0 +1,33 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-store"
+echo ""
+
+# 默认目录
+BASE="/mnt/usb/share"
+# 白名单校验：拒绝 ../
+REQ_PATH=$(echo "$QUERY_STRING" | sed 's/^path=//;s/%2F/\//g')
+[ -z "$REQ_PATH" ] && REQ_PATH="/"
+# 拼绝对路径，拒绝越界
+ABS=$(readlink -f "${BASE}${REQ_PATH}" 2>/dev/null)
+case "$ABS" in
+  "$BASE"*) ;;
+  *) echo '{"error":"path not allowed"}'; exit 0 ;;
+esac
+[ ! -d "$ABS" ] && { echo '{"error":"not a directory"}'; exit 0; }
+
+# 列表
+echo -n '{"entries":['
+FIRST=1
+for f in "$ABS"/*; do
+    [ -e "$f" ] || continue
+    NAME=$(basename "$f")
+    [ $FIRST -eq 0 ] && echo -n ','
+    FIRST=0
+    SIZE=$(stat -c %s "$f" 2>/dev/null || stat -f %z "$f" 2>/dev/null)
+    MTIME=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f" 2>/dev/null)
+    IS_DIR=0
+    [ -d "$f" ] && IS_DIR=1
+    printf '{"name":"%s","size":%s,"mtime":%s,"is_dir":%s}' "$NAME" "$SIZE" "$MTIME" "$IS_DIR"
+done
+echo ']}'

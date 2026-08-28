@@ -1,0 +1,30 @@
+#!/bin/sh
+echo "Content-Type: application/json"
+echo "Cache-Control: no-store"
+echo ""
+
+# 读取 POST 数据
+read -r POST_DATA
+INPUT_CODE=$(echo "$POST_DATA" | sed 's/.*code=\([^&]*\).*/\1/' | tr '[:lower:]' '[:upper:]')
+
+# 读取机器码
+MACHINE_ID=$(/usr/bin/tinynas-machine-id)
+
+# 读取渠道盐值
+CHANNEL_SALT=$(grep '^CHANNEL_SALT=' /etc/tinynas/secret | cut -d'=' -f2)
+[ -z "$CHANNEL_SALT" ] && CHANNEL_SALT="TinyNAS2026V1DefaultSaltChangeInProduction"
+
+# 计算期望激活码
+EXPECTED=$(printf '%s' "$MACHINE_ID" | openssl dgst -sha256 -hmac "$CHANNEL_SALT" 2>/dev/null | awk '{print toupper(substr($2,1,12))}')
+[ -z "$EXPECTED" ] && EXPECTED=$(printf '%s' "$MACHINE_ID" | openssl dgst -sha256 -hmac "$CHANNEL_SALT" | awk '{print toupper(substr($NF,1,12))}')
+
+if [ "$INPUT_CODE" = "$EXPECTED" ]; then
+    cat > /etc/tinynas/.activated <<EOA
+machine_id=$MACHINE_ID
+code=$INPUT_CODE
+activated_at=$(date +%s)
+EOA
+    echo "{\"status\":\"ok\",\"machine_id\":\"$MACHINE_ID\"}"
+else
+    echo "{\"status\":\"error\",\"msg\":\"激活码无效\",\"machine_id\":\"$MACHINE_ID\"}"
+fi
