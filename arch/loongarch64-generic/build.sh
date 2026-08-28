@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - 龙芯 LoongArch64 (loongarch64-generic) 打包入口
+# TinyNAS 锦盒 - 龙芯 LoongArch64 (loongarch64-generic) 打包入口
 # 调用 common/build-template.sh，传入 loongarch64-generic 专属参数
 set -euo pipefail
 
