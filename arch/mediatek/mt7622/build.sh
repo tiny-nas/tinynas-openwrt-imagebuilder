@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - MediaTek Filogic/MT7622/MT7623/MT7629 路由器 (mediatek-mt7622) 打包入口
+# TinyNAS 锦盒 - MediaTek Filogic/MT7622/MT7623/MT7629 路由器 (mediatek-mt7622) 打包入口
 # 调用 common/build-template.sh，传入 mediatek-mt7622 专属参数
 set -euo pipefail
 
