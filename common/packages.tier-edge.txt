@@ -1,0 +1,11 @@
+# 锦盒 TinyNAS - Edge 档位包（小米盒子3 / 魔百盒等 1GB 内存设备）
+# 在 packages.common.txt 基础上叠加
+#
+# Edge = Pro 去掉 Alist（内存大户）与 FileBrowser（文件管理走 CGI）
+#        保留 ZeroClaw AI（Rust，<5MB，经 tinynas-files/usr/bin/ 注入）
+
+# ---------- 下载 ----------
+aria2
+# transmission 按 TLS 库分包，按需启用其一：
+# transmission-daemon-openssl
+# transmission-web-openssl

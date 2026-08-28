@@ -1,6 +1,6 @@
 # arch/siflower-sf21
 
-TinyNAS 简盒在 **矽力杰 SF21xx**（siflower-sf21）架构下的打包配置。
+TinyNAS 锦盒在 **矽力杰 SF21xx**（siflower-sf21）架构下的打包配置。
 
 ## 基本信息
 
