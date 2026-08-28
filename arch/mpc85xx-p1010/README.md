@@ -1,6 +1,6 @@
 # arch/mpc85xx-p1010
 
-TinyNAS 简盒在 **Freescale P10xx/P20xx PowerPC**（mpc85xx-p1010）架构下的打包配置。
+TinyNAS 锦盒在 **Freescale P10xx/P20xx PowerPC**（mpc85xx-p1010）架构下的打包配置。
 
 ## 基本信息
 
