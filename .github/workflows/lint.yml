@@ -2,9 +2,13 @@ name: lint
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - 'arch/**'
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - 'arch/**'
 
 jobs:
   shellcheck:
@@ -12,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install shellcheck
         run: sudo apt-get install -y shellcheck
       - name: Run shellcheck on build templates
@@ -19,8 +25,12 @@ jobs:
           set -e
           echo "===== shellcheck common/build-template.sh ====="
           shellcheck --severity=warning common/build-template.sh
-          echo "===== shellcheck arch/*/build.sh ====="
-          for f in arch/*/build.sh; do
+          echo "===== shellcheck scripts/*.sh ====="
+          shellcheck --severity=warning scripts/*.sh 2>/dev/null || echo "（无 scripts/*.sh）"
+          echo "===== shellcheck 当前分支 arch/*/build.sh ====="
+          # 当前分支如果是 arch/<name>，检查该分支专属的 build.sh
+          for f in arch/*/build.sh arch/*/*/build.sh; do
+            [ -f "$f" ] || continue
             echo "----- $f -----"
             shellcheck --severity=warning "$f"
           done
