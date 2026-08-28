@@ -26,7 +26,7 @@ SYNC_FILES=(
     common/packages.tier-edge.txt
     common/packages.tier-lite.txt
     common/CHANGELOG.md
-    common/tinynas-files/README.md
+    common/tinynas-files
     README.md
     CONTRIBUTING.md
     scripts/gen-arch-branch.sh
