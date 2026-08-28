@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Freescale P10xx/P20xx PowerPC (mpc85xx-p2020) 打包入口
+# TinyNAS 锦盒 - Freescale P10xx/P20xx PowerPC (mpc85xx-p2020) 打包入口
 # 调用 common/build-template.sh，传入 mpc85xx-p2020 专属参数
 set -euo pipefail
 
