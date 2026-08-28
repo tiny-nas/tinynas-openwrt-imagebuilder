@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - ImgTec Pistachio (pistachio-generic) 打包入口
+# TinyNAS 锦盒 - ImgTec Pistachio (pistachio-generic) 打包入口
 # 调用 common/build-template.sh，传入 pistachio-generic 专属参数
 set -euo pipefail
 

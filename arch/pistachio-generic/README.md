@@ -1,6 +1,6 @@
 # arch/pistachio-generic
 
-TinyNAS 简盒在 **ImgTec Pistachio**（pistachio-generic）架构下的打包配置。
+TinyNAS 锦盒在 **ImgTec Pistachio**（pistachio-generic）架构下的打包配置。
 
 ## 基本信息
 
