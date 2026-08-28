@@ -1,6 +1,6 @@
 # arch/mediatek/mt7629
 
-TinyNAS 简盒在 **MediaTek Filogic/MT7622/MT7623/MT7629 路由器**（mediatek-mt7629）架构下的打包配置。
+TinyNAS 锦盒在 **MediaTek Filogic/MT7622/MT7623/MT7629 路由器**（mediatek-mt7629）架构下的打包配置。
 
 ## 基本信息
 
