@@ -1,6 +1,6 @@
 # arch/lantiq-xrx200_legacy
 
-TinyNAS 简盒在 **Lantiq xRX/xWAY DSL 路由器**（lantiq-xrx200_legacy）架构下的打包配置。
+TinyNAS 锦盒在 **Lantiq xRX/xWAY DSL 路由器**（lantiq-xrx200_legacy）架构下的打包配置。
 
 ## 基本信息
 
