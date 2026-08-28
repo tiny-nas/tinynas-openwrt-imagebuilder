@@ -1,6 +1,6 @@
 # arch/imx-cortexa53
 
-TinyNAS 简盒在 **NXP i.MX 6/7/8 SBC**（imx-cortexa53）架构下的打包配置。
+TinyNAS 锦盒在 **NXP i.MX 6/7/8 SBC**（imx-cortexa53）架构下的打包配置。
 
 ## 基本信息
 
