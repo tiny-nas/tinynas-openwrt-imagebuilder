@@ -113,6 +113,10 @@ if [ -d "${ARCH_DIR}/files-overlay" ]; then
     cp -a "${ARCH_DIR}/files-overlay/." files/
 fi
 
+# 权限补偿：git 不保留可执行位与 600（Task 1.7）
+find files/etc/init.d files/usr/bin files/www/cgi-bin -type f -exec chmod 755 {} \; 2>/dev/null || true
+[ -f files/etc/tinynas/secret ] && chmod 600 files/etc/tinynas/secret
+
 # 写入运行时档位/版本标识（dashboard 读取 /etc/tinynas/tier 隐藏不可用模块）
 mkdir -p files/etc/tinynas
 echo "BRAND=tinynas"    > files/etc/tinynas/brand
