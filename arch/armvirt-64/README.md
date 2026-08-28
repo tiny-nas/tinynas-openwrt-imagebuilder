@@ -1,6 +1,6 @@
 # arch/armvirt-64
 
-TinyNAS 简盒在通用 ARMv8（armvirt-64）架构下的打包配置。
+TinyNAS 锦盒在通用 ARMv8（armvirt-64）架构下的打包配置。
 
 > ⚠️ 重要说明：**本仓库 `arch/armvirt-64/` 仅作框架占位**。斐讯 N1、小米盒子3 等 Amlogic S9xxx 系列有专属打包工具（ophub），实际 N1 集成在 [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt) 仓库。
 >
