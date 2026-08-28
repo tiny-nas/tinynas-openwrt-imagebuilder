@@ -1,10 +1,19 @@
-# arch/armvirt-64
+# arch/armvirt-64（⛔ 已废弃，冻结于 OpenWrt 23.05.3）
 
-TinyNAS 锦盒在通用 ARMv8（armvirt-64）架构下的打包配置。
+> **⛔ 本分支已废弃。** `armvirt` target 自 OpenWrt 24.10 起被 **`armsr`** 取代，
+> OpenWrt 25.12.5 官方 targets 目录已不存在 `armvirt/64`，本分支无法升级到 25.12.5。
+> 非-Amlogic 的 ARMv8 通用平台请改用官方继任分支：
+> **[`arch/armsr/armv8`](https://github.com/tinynas-labs/tinynas-openwrt-imagebuilder/tree/arch/armsr%2Farmv8)**
+
+以下为历史参考内容。
+
+---
+
+TinyNAS 锦盒曾在通用 ARMv8（armvirt-64）架构下维护打包配置。
 
 > ⚠️ 重要说明：**本仓库 `arch/armvirt-64/` 仅作框架占位**。斐讯 N1、小米盒子3 等 Amlogic S9xxx 系列有专属打包工具（ophub），实际 N1 集成在 [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt) 仓库。
 >
-> `armvirt-64` 适用于**非 Amlogic 的 ARMv8 通用平台**，例如：
+> `armvirt-64` 曾适用于**非 Amlogic 的 ARMv8 通用平台**，例如：
 > - 瑞芯微 RK3588/RK3568 设备（需要厂商自带 ATF/U-Boot）
 > - 飞腾 S2500
 > - 树莓派 4B/5（64 位内核）
