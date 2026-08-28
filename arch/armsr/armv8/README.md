@@ -1,6 +1,6 @@
 # arch/armsr/armv8
 
-TinyNAS 简盒在 **ARMv8 软路由（x86 类通用）**（armsr-armv8）架构下的打包配置。
+TinyNAS 锦盒在 **ARMv8 软路由（x86 类通用）**（armsr-armv8）架构下的打包配置。
 
 ## 基本信息
 

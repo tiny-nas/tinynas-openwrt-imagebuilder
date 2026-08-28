@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - ARMv8 软路由（x86 类通用） (armsr-armv8) 打包入口
+# TinyNAS 锦盒 - ARMv8 软路由（x86 类通用） (armsr-armv8) 打包入口
 # 调用 common/build-template.sh，传入 armsr-armv8 专属参数
 set -euo pipefail
 
