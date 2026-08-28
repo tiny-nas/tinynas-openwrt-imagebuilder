@@ -1,0 +1,3 @@
+# TinyNAS 简盒 - mediatek-mt7623 架构专属包
+# 在 common/packages.common.txt 基础上叠加
+# （待验证后补充 NIC/SOC 专属驱动）
