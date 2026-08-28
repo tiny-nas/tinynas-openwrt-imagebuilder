@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>锦盒 TinyNAS · 首次激活</title>
+<style>
+body { background:#0F172A; color:#E2E8F0; font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+.card { background:#1E293B; border-radius:12px; padding:32px 40px; max-width:520px; width:90%; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
+h1 { font-size:24px; margin:0 0 8px; color:#F59E0B; }
+.sub { color:#94A3B8; font-size:14px; margin-bottom:24px; }
+.machine-id { font-family:ui-monospace,monospace; font-size:20px; padding:14px 16px; background:#0F172A; border-radius:8px; letter-spacing:2px; border:1px solid #334155; }
+.copy-btn, .activate-btn { background:#F59E0B; color:#0F172A; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; }
+.copy-btn:hover, .activate-btn:hover { background:#D97706; }
+.activate-btn:disabled { background:#475569; color:#94A3B8; cursor:not-allowed; }
+.activation-code { font-family:ui-monospace,monospace; font-size:18px; padding:14px 16px; background:#0F172A; border:1px solid #334155; border-radius:8px; width:100%; margin-top:8px; letter-spacing:4px; text-transform:uppercase; }
+.note { margin-top:24px; padding:14px; background:#0F172A; border-radius:8px; font-size:13px; color:#94A3B8; }
+.result { margin-top:16px; padding:12px; border-radius:8px; display:none; }
+.result.ok { background:#064e3b; color:#34D399; }
+.result.err { background:#7f1d1d; color:#F87171; }
+</style>
+</head>
+<body>
+<div class="card">
+    <h1>锦盒 TinyNAS</h1>
+    <div class="sub">首次激活 — 请把下方 16 位机器码发给卖家获取 12 位激活码</div>
+
+    <div class="machine-id" id="mid">加载中…</div>
+    <button class="copy-btn" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.getElementById('mid').textContent).then(()=>{this.textContent='已复制 ✓';setTimeout(()=>this.textContent='复制机器码',1500)})">复制机器码</button>
+
+    <div style="margin-top:24px;">
+        <label style="font-size:13px; color:#94A3B8;">激活码（12 位）</label>
+        <input class="activation-code" id="code" maxlength="12" placeholder="________" autocomplete="off">
+    </div>
+    <button class="activate-btn" id="btn" onclick="doActivate()" style="margin-top:12px; width:100%;">激 活 设 备</button>
+
+    <div class="result" id="result"></div>
+
+    <div class="note">
+        ⓘ 未激活期间：Samba 只读 · 无远程下载 · 智能体不可用（激活后自动解锁）
+    </div>
+</div>
+
+<script>
+fetch('/cgi-bin/machine-id').then(r=>r.json()).then(d=>{document.getElementById('mid').textContent=d.machine_id}).catch(e=>{document.getElementById('mid').textContent='读取失败'});
+
+function doActivate(){
+    const code=document.getElementById('code').value.trim();
+    const btn=document.getElementById('btn');
+    const result=document.getElementById('result');
+    if(code.length!==12){result.className='result err';result.textContent='激活码必须是 12 位';result.style.display='block';return;}
+    btn.disabled=true;btn.textContent='校验中…';
+    result.style.display='none';
+    fetch('/cgi-bin/activate',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'code='+encodeURIComponent(code)})
+    .then(r=>r.json()).then(d=>{
+        if(d.status==='ok'){
+            result.className='result ok';
+            result.textContent='✓ 激活成功，3 秒后跳转到仪表盘…';
+            result.style.display='block';
+            setTimeout(()=>location.href='/',3000);
+        } else {
+            btn.disabled=false;btn.textContent='激 活 设 备';
+            result.className='result err';
+            result.textContent='✗ '+d.msg+'（机器码：'+(d.machine_id||'')+'）';
+            result.style.display='block';
+        }
+    }).catch(e=>{btn.disabled=false;btn.textContent='激 活 设 备';result.className='result err';result.textContent='网络错误：'+e;result.style.display='block';});
+}
+</script>
+</body>
+</html>
