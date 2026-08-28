@@ -1,6 +1,6 @@
 # arch/ath79-generic
 
-TinyNAS 简盒在 **Atheros ath79 系列路由器**（ath79-generic）架构下的打包配置。
+TinyNAS 锦盒在 **Atheros ath79 系列路由器**（ath79-generic）架构下的打包配置。
 
 ## 基本信息
 
