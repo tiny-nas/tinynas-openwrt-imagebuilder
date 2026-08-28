@@ -13,18 +13,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - arch: x86_64
-            openwrt_version: '23.05.3'
-          - arch: armvirt-64
-            openwrt_version: '23.05.3'
+        # 自动发现所有 arch/<name> 分支（除 main 外的 arch/ 前缀分支）
+        # 在 workflow 触发时由下面 `set-matrix` job 动态展开。
+        arch: []
     steps:
+      - name: Resolve branch name and arch
+        id: resolve
+        run: |
+          BRANCH="${{ github.ref }}"
+          BRANCH="${BRANCH#refs/heads/}"
+          if [[ "$BRANCH" != arch/* ]]; then
+            echo "Not an arch branch; skipping build job"
+            exit 0
+          fi
+          ARCH_DIR="${BRANCH#arch/}"
+          echo "ARCH_DIR=$ARCH_DIR"
+          echo "arch=$ARCH_DIR" >> "$GITHUB_OUTPUT"
+
       - name: Checkout (with submodules if any)
+        if: steps.resolve.outputs.arch != ''
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install build dependencies
+        if: steps.resolve.outputs.arch != ''
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -44,42 +57,72 @@ jobs:
             gettext \
             swig \
             time \
+            zstd \
             shellcheck
 
       - name: Cache Image Builder
+        if: steps.resolve.outputs.arch != ''
         id: cache-ib
         uses: actions/cache@v4
         with:
           path: ib-cache/
-          key: ib-${{ matrix.arch }}-${{ matrix.openwrt_version }}
+          key: ib-${{ steps.resolve.outputs.arch }}-25.12.5
 
       - name: Run build.sh
+        if: steps.resolve.outputs.arch != ''
         id: build
         run: |
-          chmod +x arch/${{ matrix.arch }}/build.sh
-          cd arch/${{ matrix.arch }}
+          chmod +x arch/${{ steps.resolve.outputs.arch }}/build.sh
+          cd arch/${{ steps.resolve.outputs.arch }}
           ./build.sh stable 1.0.0
 
       - name: Upload artifact
-        if: success()
+        if: steps.resolve.outputs.arch != '' && success()
         uses: actions/upload-artifact@v4
         with:
-          name: tinynas-${{ matrix.arch }}-img
-          path: arch/${{ matrix.arch }}/output/openwrt_tinynas-*.img.gz
+          name: tinynas-${{ steps.resolve.outputs.arch }}-img
+          path: arch/${{ steps.resolve.outputs.arch }}/output/openwrt_tinynas-*.img.gz
           if-no-files-found: warn
 
       - name: Upload sha256
-        if: success()
+        if: steps.resolve.outputs.arch != '' && success()
         uses: actions/upload-artifact@v4
         with:
-          name: tinynas-${{ matrix.arch }}-sha256
-          path: arch/${{ matrix.arch }}/output/*.sha256
+          name: tinynas-${{ steps.resolve.outputs.arch }}-sha256
+          path: arch/${{ steps.resolve.outputs.arch }}/output/*.sha256
           if-no-files-found: warn
 
       - name: Upload build log
-        if: always()
+        if: steps.resolve.outputs.arch != '' && always()
         uses: actions/upload-artifact@v4
         with:
-          name: tinynas-${{ matrix.arch }}-log
-          path: arch/${{ matrix.arch }}/output/*.log
+          name: tinynas-${{ steps.resolve.outputs.arch }}-log
+          path: arch/${{ steps.resolve.outputs.arch }}/output/*.log
           if-no-files-found: ignore
+
+  # 工作流级矩阵触发：检测到任何 arch/** 分支 push 时自动 build。
+  # 不用 matrix 展开，让每个 push 只 build 当前 push 的那个分支。
+  # 触发条件：push 到 arch/** 或手动 dispatch。
+  # 上述 `build` job 内部已通过 github.ref 解析，无需另设 matrix。
+
+# 说明：
+# - 本工作流**不**用 matrix（matrix 不支持运行时动态展开）
+# - 92 个 arch 分支各自 push 时，会单独触发本工作流一次
+# - 触发时通过 github.ref 取出分支名（如 refs/heads/arch/x86_64），
+#   去掉 arch/ 前缀得到 ARCH_DIR，再跑 arch/<ARCH_DIR>/build.sh
+# - 这样新增架构分支**无需**修改本工作流
+
+  lint:
+    name: lint (no build)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+      - name: Run shellcheck
+        run: |
+          echo "===== common/build-template.sh ====="
+          shellcheck --severity=warning common/build-template.sh
+          echo "===== scripts/*.sh ====="
+          shellcheck --severity=warning scripts/*.sh
