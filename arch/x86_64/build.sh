@@ -8,11 +8,11 @@ TEMPLATE="${SCRIPT_DIR}/../../common/build-template.sh"
 
 [ -x "${TEMPLATE}" ] || { echo "未找到 ${TEMPLATE}"; exit 1; }
 
-# x86_64 在 OpenWrt 23.05.3 上的 target 路径为 x86_64
+# x86_64 在 OpenWrt 25.12.5 上的 target 路径为 x86_64
 # PROFILE 默认 generic（适合大多数 x86_64 迷你主机：NUC、迷你PC、工控机）
 exec "${TEMPLATE}" \
     "x86_64" \
-    "23.05.3" \
+    "25.12.5" \
     "generic" \
     "x86_64" \
     "${1:-stable}" \
