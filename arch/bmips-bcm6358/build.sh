@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Broadcom BMIPS（运营商光猫） (bmips-bcm6358) 打包入口
+# TinyNAS 锦盒 - Broadcom BMIPS（运营商光猫） (bmips-bcm6358) 打包入口
 # 调用 common/build-template.sh，传入 bmips-bcm6358 专属参数
 set -euo pipefail
 
