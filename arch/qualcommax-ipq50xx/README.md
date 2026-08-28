@@ -1,6 +1,6 @@
 # arch/qualcommax-ipq50xx
 
-TinyNAS 简盒在 **高通 IPQ50xx/60xx/807x 高端路由器**（qualcommax-ipq50xx）架构下的打包配置。
+TinyNAS 锦盒在 **高通 IPQ50xx/60xx/807x 高端路由器**（qualcommax-ipq50xx）架构下的打包配置。
 
 ## 基本信息
 

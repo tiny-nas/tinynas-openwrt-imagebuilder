@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - 高通 IPQ50xx/60xx/807x 高端路由器 (qualcommax-ipq50xx) 打包入口
+# TinyNAS 锦盒 - 高通 IPQ50xx/60xx/807x 高端路由器 (qualcommax-ipq50xx) 打包入口
 # 调用 common/build-template.sh，传入 qualcommax-ipq50xx 专属参数
 set -euo pipefail
 
