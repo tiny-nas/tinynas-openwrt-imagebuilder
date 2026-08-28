@@ -1,6 +1,6 @@
 # arch/octeon-generic
 
-TinyNAS 简盒在 **Cavium Octeon MIPS64**（octeon-generic）架构下的打包配置。
+TinyNAS 锦盒在 **Cavium Octeon MIPS64**（octeon-generic）架构下的打包配置。
 
 ## 基本信息
 
