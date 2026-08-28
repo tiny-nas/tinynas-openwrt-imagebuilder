@@ -22,6 +22,16 @@ VERSION="${6:-1.0.0}"
 TIER="${7:-${TIER:-pro}}"
 DATE=$(date +%Y.%m.%d)
 
+# 规范化 target 路径：OpenWrt 下载站路径恒为 arch/subarch（含一个斜杠）。
+# 历史上批量生成的 build.sh 把设备名（如 ramips-mt7621）当 target 路径传入，
+# 这里按规则归一：x86_64→x86/64；含斜杠原样；否则把第一个 - 替换为 /
+case "${TARGET_DIR}" in
+  x86_64)     TARGET_PATH="x86/64" ;;
+  armvirt-64) TARGET_PATH="armvirt/64" ;;
+  */*)        TARGET_PATH="${TARGET_DIR}" ;;
+  *)          TARGET_PATH="${TARGET_DIR/-//}" ;;
+esac
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # SCRIPT_DIR = common/ ; REPO_ROOT = ../
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -62,7 +72,7 @@ command -v make >/dev/null  || fail "缺少 make（Image Builder 依赖）"
 # --------- 2. 下载并解压 Image Builder（按需缓存）---------
 # OpenWrt 23.05 及更早版本 Image Builder 为 .tar.xz；24.10+ 改为 .tar.zst
 # 两种都尝试，按实际存在的格式解压
-IB_BASE="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET_DIR}/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_DIR//\//-}.Linux-x86_64"
+IB_BASE="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET_PATH}/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_PATH//\//-}.Linux-x86_64"
 IB_TAR_ZST="${IB_BASE}.tar.zst"
 IB_TAR_XZ="${IB_BASE}.tar.xz"
 
@@ -132,21 +142,48 @@ make image \
     FILES="${IB_DIR}/files" \
     2>&1 | tee "${OUTPUT_DIR}/build-${DATE}.log"
 
-# --------- 6. 收尾：重命名 + sha256 ---------
+# --------- 6. 收尾：收集产物 + 重命名 + sha256 ---------
 mkdir -p "${OUTPUT_DIR}"
-OUT_NAME="openwrt_tinynas-${TIER}-${DEVICE_TAG}_v${VERSION}-${CHANNEL}_${DATE}.img.gz"
-PRODUCED_RAW=$(ls -t bin/targets/${TARGET_DIR}/openwrt-*${DEVICE_TAG}*.img.gz 2>/dev/null | head -n1)
+OUT_STEM="openwrt_tinynas-${TIER}-${DEVICE_TAG}_v${VERSION}-${CHANNEL}_${DATE}"
 
-if [ -z "${PRODUCED_RAW:-}" ]; then
-    fail "未找到 Image Builder 产物，请检查 build log"
+# 路由器 target 产出 .bin（factory/sysupgrade），x86/armsr 等产出 .img.gz，
+# 统一收集并在文件名中保留产物类别（factory/sysupgrade/combined 等）
+shopt -s nullglob
+FOUND=0
+for f in \
+    "bin/targets/${TARGET_PATH}/"*.img.gz \
+    "bin/targets/${TARGET_PATH}/"*-sysupgrade.bin \
+    "bin/targets/${TARGET_PATH}/"*-factory.bin \
+    "bin/targets/${TARGET_PATH}/"*-combined.img.gz \
+    "bin/targets/${TARGET_PATH}/"*-combined-efi.img.gz; do
+    [ -f "$f" ] || continue
+    base=$(basename "$f")
+    kind=""
+    case "$base" in
+        *sysupgrade*)          kind="sysupgrade" ;;
+        *factory*)             kind="factory" ;;
+        *combined-efi*)        kind="combined-efi" ;;
+        *combined*)            kind="combined" ;;
+        *ext4*)                kind="ext4" ;;
+        *squashfs-rootfs*|*rootfs*) kind="rootfs" ;;
+    esac
+    ext="${base##*.}"
+    OUT_NAME="${OUT_STEM}"
+    [ -n "$kind" ] && OUT_NAME="${OUT_STEM}-${kind}"
+    OUT_NAME="${OUT_NAME}.${ext}"
+    mv "$f" "${OUTPUT_DIR}/${OUT_NAME}"
+    sha256sum "${OUTPUT_DIR}/${OUT_NAME}" > "${OUTPUT_DIR}/${OUT_NAME}.sha256"
+    log "产物: ${base} → ${OUT_NAME}"
+    FOUND=$((FOUND+1))
+done
+shopt -u nullglob
+
+if [ "${FOUND}" -eq 0 ]; then
+    fail "未找到 Image Builder 产物（bin/targets/${TARGET_PATH}/ 下无 .img.gz 或 .bin），请检查 build log"
 fi
-
-log "产物: ${PRODUCED_RAW} → ${OUT_NAME}"
-mv "${PRODUCED_RAW}" "${OUTPUT_DIR}/${OUT_NAME}"
-sha256sum "${OUTPUT_DIR}/${OUT_NAME}" | tee "${OUTPUT_DIR}/${OUT_NAME}.sha256"
 
 # 清理临时 log
 [ -f "${OUTPUT_DIR}/build-${DATE}.log" ] && tail -50 "${OUTPUT_DIR}/build-${DATE}.log" > "${OUTPUT_DIR}/build-${DATE}.log.tailed" && mv "${OUTPUT_DIR}/build-${DATE}.log.tailed" "${OUTPUT_DIR}/build-${DATE}.log"
 
-log "✅ 完成: ${OUTPUT_DIR}/${OUT_NAME}"
-log "  sha256: $(cat ${OUTPUT_DIR}/${OUT_NAME}.sha256 | awk '{print $1}')"
+log "✅ 完成：共 ${FOUND} 个产物，位于 ${OUTPUT_DIR}/"
+log "  命名前缀: ${OUT_STEM}"
