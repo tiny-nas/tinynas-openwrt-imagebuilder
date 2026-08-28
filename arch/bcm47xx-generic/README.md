@@ -1,6 +1,6 @@
 # arch/bcm47xx-generic
 
-TinyNAS 简盒在 **Broadcom BCM47xx 路由器**（bcm47xx-generic）架构下的打包配置。
+TinyNAS 锦盒在 **Broadcom BCM47xx 路由器**（bcm47xx-generic）架构下的打包配置。
 
 ## 基本信息
 
