@@ -57,18 +57,32 @@ command -v tar >/dev/null   || fail "缺少 tar"
 command -v make >/dev/null  || fail "缺少 make（Image Builder 依赖）"
 
 # --------- 2. 下载并解压 Image Builder（按需缓存）---------
-IB_URL="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET_DIR}/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_DIR//\//-}.Linux-x86_64.tar.xz"
+# OpenWrt 23.05 及更早版本 Image Builder 为 .tar.xz；24.10+ 改为 .tar.zst
+# 两种都尝试，按实际存在的格式解压
+IB_BASE="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET_DIR}/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_DIR//\//-}.Linux-x86_64"
+IB_TAR_ZST="${IB_BASE}.tar.zst"
+IB_TAR_XZ="${IB_BASE}.tar.xz"
 
 if [ -d "${IB_DIR}" ] && [ -x "${IB_DIR}/make" ]; then
     log "复用 IB 缓存: ${IB_DIR}"
 else
     log "下载 Image Builder ..."
     mkdir -p "${IB_CACHE}"
-    TMP_TAR="${IB_CACHE}/$(basename "${IB_URL}")"
-    [ -f "${TMP_TAR}" ] || curl -fsSL --retry 3 -o "${TMP_TAR}" "${IB_URL}"
+    TAR_DECOMPRESS=()
+    TMP_TAR="${IB_CACHE}/$(basename "${IB_TAR_ZST}")"
+    if curl -fsSL --retry 3 -o "${TMP_TAR}" "${IB_TAR_ZST}"; then
+        command -v zstd >/dev/null || fail "解压 .tar.zst 需要 zstd，请先安装（Ubuntu: sudo apt-get install -y zstd）"
+        TAR_DECOMPRESS=(--zstd)
+    else
+        rm -f "${TMP_TAR}"
+        log ".tar.zst 不存在（旧版本 OpenWrt），回退 .tar.xz ..."
+        TMP_TAR="${IB_CACHE}/$(basename "${IB_TAR_XZ}")"
+        curl -fsSL --retry 3 -o "${TMP_TAR}" "${IB_TAR_XZ}"
+        TAR_DECOMPRESS=(-J)
+    fi
     log "解压到 ${IB_DIR} ..."
     mkdir -p "${IB_DIR}"
-    tar xJf "${TMP_TAR}" -C "${IB_DIR}" --strip-components=1
+    tar "${TAR_DECOMPRESS[@]}" -xf "${TMP_TAR}" -C "${IB_DIR}" --strip-components=1
 fi
 
 cd "${IB_DIR}"
