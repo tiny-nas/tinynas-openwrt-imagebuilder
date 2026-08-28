@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - 高通 IPQ806x 路由器 (ipq806x-generic) 打包入口
+# TinyNAS 锦盒 - 高通 IPQ806x 路由器 (ipq806x-generic) 打包入口
 # 调用 common/build-template.sh，传入 ipq806x-generic 专属参数
 set -euo pipefail
 

@@ -1,6 +1,6 @@
 # arch/ipq806x-generic
 
-TinyNAS 简盒在 **高通 IPQ806x 路由器**（ipq806x-generic）架构下的打包配置。
+TinyNAS 锦盒在 **高通 IPQ806x 路由器**（ipq806x-generic）架构下的打包配置。
 
 ## 基本信息
 
