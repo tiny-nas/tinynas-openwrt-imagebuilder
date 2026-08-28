@@ -1,6 +1,6 @@
 # arch/zynq-generic
 
-TinyNAS 简盒在 **Xilinx Zynq-7000**（zynq-generic）架构下的打包配置。
+TinyNAS 锦盒在 **Xilinx Zynq-7000**（zynq-generic）架构下的打包配置。
 
 ## 基本信息
 
