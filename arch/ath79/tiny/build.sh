@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TinyNAS 简盒 - Atheros ath79 系列路由器 (ath79-tiny) 打包入口
+# TinyNAS 锦盒 - Atheros ath79 系列路由器 (ath79-tiny) 打包入口
 # 调用 common/build-template.sh，传入 ath79-tiny 专属参数
 set -euo pipefail
 
