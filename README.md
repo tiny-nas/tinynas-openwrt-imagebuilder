@@ -1,10 +1,10 @@
 # 锦盒 TinyNAS · OpenWrt Image Builder 集成层
 
-[锦盒 TinyNAS](https://github.com/tinynas-labs) 是面向斐讯 N1 / 迷你主机 / 家用路由器的"轻量 NAS + AI 助理"家庭算力网关系统。本仓库是 TinyNAS 在 **OpenWrt 官方 Image Builder** 上的多架构集成层。
+[锦盒 TinyNAS](https://github.com/tiny-nas) 是面向斐讯 N1 / 迷你主机 / 家用路由器的"轻量 NAS + AI 助理"家庭算力网关系统。本仓库是 TinyNAS 在 **OpenWrt 官方 Image Builder** 上的多架构集成层。
 
 > 项目代号：**`TinyNAS`**（中文：**锦盒**）—— Tiny 一眼传递硬件小巧，NAS 一眼传递品类。
 > 主标语：**锦盒 TinyNAS —— 斐讯 N1 变身家庭 AI 私有云**
-> 文档详见 [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt) 与 [品牌主页](https://github.com/tinynas-labs)。
+> 文档详见 [`tiny-nas/amlogic-s9xxx-openwrt`](https://github.com/tiny-nas/amlogic-s9xxx-openwrt) 与 [品牌主页](https://github.com/tiny-nas)。
 
 ---
 
@@ -14,7 +14,7 @@
 
 ### Amlogic 设备
 
-> ⚠️ 斐讯 N1 / 小米盒子3 等 Amlogic S9xxx 系列不在本仓库（它们使用 ophub 打包工具链），请使用 [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt)。
+> ⚠️ 斐讯 N1 / 小米盒子3 等 Amlogic S9xxx 系列不在本仓库（它们使用 ophub 打包工具链），请使用 [`tiny-nas/amlogic-s9xxx-openwrt`](https://github.com/tiny-nas/amlogic-s9xxx-openwrt)。
 
 ### 通用 ARM / ARMv8 主机
 
@@ -183,7 +183,7 @@
 ## 仓库结构（单仓多分支）
 
 ```
-tinynas-labs/tinynas-openwrt-imagebuilder
+tiny-nas/tinynas-openwrt-imagebuilder
 ├── README.md                  ← 本文件
 ├── CONTRIBUTING.md            ← 如何新增架构
 ├── .github/workflows/         ← GitHub Actions
@@ -213,7 +213,7 @@ tinynas-labs/tinynas-openwrt-imagebuilder
 
 ## 镜像命名规范
 
-二次定制后产物（与 `tinynas-labs/amlogic-s9xxx-openwrt` 一致，第 2 段带功能档位）：
+二次定制后产物（与 `tiny-nas/amlogic-s9xxx-openwrt` 一致，第 2 段带功能档位）：
 
 ```
 openwrt_tinynas-<档位>-<设备>_v<SemVer>-<渠道>_<YYYY.MM.DD>.img.gz
@@ -260,11 +260,11 @@ ls output/openwrt_tinynas-x86_64_v*.img.gz
 
 | 仓库 | 用途 |
 |------|------|
-| [`tinynas-labs/amlogic-s9xxx-openwrt`](https://github.com/tinynas-labs/amlogic-s9xxx-openwrt) | 斐讯 N1 / 小米盒子3 等 Amlogic S9xxx 系列（基于 ophub 上游 fork） |
-| `tinynas-labs/tinynas-openwrt-imagebuilder`（本仓库） | 92 个 OpenWrt 官方架构（基于 OpenWrt 官方 Image Builder） |
-| `tinynas-labs/armbian-build`（未来） | 非 OpenWrt 平台（基于 Armbian） |
-| `tinynas-labs/dashboard` | 仪表盘前端（Vue3 SPA，静态资源本地内置零外链） |
-| `tinynas-labs/pairing` | 云端配对服务（Rust + Axum + SQLite） |
+| [`tiny-nas/amlogic-s9xxx-openwrt`](https://github.com/tiny-nas/amlogic-s9xxx-openwrt) | 斐讯 N1 / 小米盒子3 等 Amlogic S9xxx 系列（基于 ophub 上游 fork） |
+| `tiny-nas/tinynas-openwrt-imagebuilder`（本仓库） | 92 个 OpenWrt 官方架构（基于 OpenWrt 官方 Image Builder） |
+| `tiny-nas/armbian-build`（未来） | 非 OpenWrt 平台（基于 Armbian） |
+| `tiny-nas/dashboard` | 仪表盘前端（Vue3 SPA，静态资源本地内置零外链） |
+| `tiny-nas/pairing` | 云端配对服务（Rust + Axum + SQLite） |
 
 所有 fork 仓共享 `common/tinynas-files/` 覆盖层，一次改动全平台生效。
 

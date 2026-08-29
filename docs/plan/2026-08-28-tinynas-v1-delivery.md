@@ -4,7 +4,7 @@
 
 **Goal:** 9-10 月内交付锦盒 TinyNAS V1.0 完整版（含 N1 固件 + 仪表盘 SPA + **完整 LuCI 统一主题** + NATS/pairing + 浏览器插件 + 渠道工具），10 月初可限量预售/试卖，10-31 V1.0 GA 进入全面销售。
 
-**Architecture:** 单仓多分支 `tinynas-labs/tinynas-openwrt-imagebuilder`（main + 92 个 `arch/<name>`）+ 配套独立仓 `pairing` / `dashboard` / `chrome-extension` / `tools` / **新增 `luci-theme-tinynas`**。N1 走 ophub 零改动 fork 路径；其余 92 架构走 OpenWrt 官方 Image Builder（脚本下载 tar）。覆盖层 `common/tinynas-files/` 为所有固件共享权威源。LuCI 主题 fork luci-theme-bootstrap 重写视觉层，锦盒设计令牌（颜色/字体/圆角/卡片/动效）从 SCSS 变量统一生成。
+**Architecture:** 单仓多分支 `tiny-nas/tinynas-openwrt-imagebuilder`（main + 92 个 `arch/<name>`）+ 配套独立仓 `pairing` / `dashboard` / `chrome-extension` / `tools` / **新增 `luci-theme-tinynas`**。N1 走 ophub 零改动 fork 路径；其余 92 架构走 OpenWrt 官方 Image Builder（脚本下载 tar）。覆盖层 `common/tinynas-files/` 为所有固件共享权威源。LuCI 主题 fork luci-theme-bootstrap 重写视觉层，锦盒设计令牌（颜色/字体/圆角/卡片/动效）从 SCSS 变量统一生成。
 
 **Tech Stack:** OpenWrt 25.12.5 · ophub amlogic-s9xxx-openwrt（fork，零 commit） · Shell CGI + uHTTPd · Vue3 + Tailwind（本地 vendor，零 CDN） · **luci-theme-tinynas（fork luci-theme-bootstrap + SCSS 重构）** · Rust + Axum + SQLite（pairing） · NATS Server 2.10.x + JetStream · Chrome MV3 + nats.ws · Python tkinter（生成器） · GitHub Actions（动态分支构建）。
 
@@ -32,7 +32,7 @@
 
 ## 文件结构（计划涉及的文件矩阵）
 
-### 仓库 `tinynas-labs/tinynas-openwrt-imagebuilder`（本仓）
+### 仓库 `tiny-nas/tinynas-openwrt-imagebuilder`（本仓）
 ```
 common/build-template.sh              [MODIFY]  ★ Tier 参数已支持；M1 需补机器码/激活 CGI 调用适配
 common/packages.common.txt           [EXISTS]  ★
@@ -63,7 +63,7 @@ docs/plan/                            [CREATE]  ★ 本计划所在
 └── lint.yml                          [EXISTS]  ★ 加 secret 扫描 + 命名 lint
 ```
 
-### 独立仓 `tinynas-labs/pairing`
+### 独立仓 `tiny-nas/pairing`
 ```
 Cargo.toml                            [CREATE]
 src/main.rs                           [CREATE]  ★ Axum 路由 + SQLite
@@ -74,7 +74,7 @@ deploy/systemd/tinynas-pairing.service [CREATE]
 docs/{deploy.md,openapi.md}           [CREATE]
 ```
 
-### 独立仓 `tinynas-labs/dashboard`
+### 独立仓 `tiny-nas/dashboard`
 ```
 src/{main.ts,App.vue,router.ts,api.ts}    [CREATE]
 src/views/{Dashboard,Files,Downloads,Pairing,Settings,Wizard}.vue  [CREATE]
@@ -86,7 +86,7 @@ scripts/build.sh                     [CREATE]  ★ vendor 钉版本 + Tailwind �
 vite.config.ts                        [CREATE]
 ```
 
-### 独立仓 `tinynas-labs/luci-theme-tinynas`（**v2 新增**）
+### 独立仓 `tiny-nas/luci-theme-tinynas`（**v2 新增**）
 ```
 htdocs/luci-static/tinynas/
 ├── design-tokens.json                       [CREATE]  ★ 与 dashboard 同源
@@ -139,7 +139,7 @@ Run:
 ```bash
 which gh jq git make curl openssl zstd ssh
 gh auth status | head -3   # 期望：hiwepy 已登录
-gh api user/orgs | jq -r '.[] | select(.login=="tinynas-labs") | .login'  # 期望：tinynas-labs
+gh api user/orgs | jq -r '.[] | select(.login=="tiny-nas") | .login'  # 期望：tiny-nas
 ```
 
 **Step 4: 准备 USB-TTL 串口线**
@@ -823,7 +823,7 @@ cat arch/x86_64/build.sh | grep -E "TIER|PROFILE|stable|1.0.0"
 ssh tinynas-vps 'bash -s' < <'EOF'
 set -euo pipefail
 cd /tmp
-git clone https://github.com/tinynas-labs/tinynas-openwrt-imagebuilder.git
+git clone https://github.com/tiny-nas/tinynas-openwrt-imagebuilder.git
 cd tinynas-openwrt-imagebuilder
 git checkout arch/x86_64
 chmod +x arch/x86_64/build.sh
@@ -908,14 +908,14 @@ git checkout main
 ### Task 2A.1  dashboard 仓库初始化与 vite 配置（W2 第 1 天）
 
 **Files:**
-- Create: `~/work/tinynas/dashboard/`（独立仓 `tinynas-labs/dashboard`）
-- Create: `tinynas-labs/dashboard/package.json`
-- Create: `tinynas-labs/dashboard/vite.config.ts`
-- Create: `tinynas-labs/dashboard/tsconfig.json`
+- Create: `~/work/tinynas/dashboard/`（独立仓 `tiny-nas/dashboard`）
+- Create: `tiny-nas/dashboard/package.json`
+- Create: `tiny-nas/dashboard/vite.config.ts`
+- Create: `tiny-nas/dashboard/tsconfig.json`
 
 **Step 1: 远端创建空仓库**
 ```bash
-gh repo create tinynas-labs/dashboard --org tinynas-labs \
+gh repo create tiny-nas/dashboard --org tiny-nas \
   --description "锦盒 TinyNAS 仪表盘前端（Vue3 SPA，本地资源零外链）" \
   --public
 ```
@@ -923,7 +923,7 @@ gh repo create tinynas-labs/dashboard --org tinynas-labs \
 **Step 2: 本地克隆**
 ```bash
 cd ~/work/tinynas
-git clone https://github.com/tinynas-labs/dashboard.git
+git clone https://github.com/tiny-nas/dashboard.git
 cd dashboard
 git config user.email "hiwepy@users.noreply.github.com"
 git config user.name "hiwepy"
@@ -998,12 +998,12 @@ git push origin main
 ### Task 2A.2  Vue3 SPA 五页骨架 + 路由 + Pinia（W2 第 2–3 天）
 
 **Files:**
-- Create: `tinynas-labs/dashboard/src/main.ts`
-- Create: `tinynas-labs/dashboard/src/App.vue`
-- Create: `tinynas-labs/dashboard/src/router.ts`
-- Create: `tinynas-labs/dashboard/src/stores/status.ts`
-- Create: `tinynas-labs/dashboard/src/views/{Dashboard,Files,Downloads,Pairing,Settings}.vue`
-- Create: `tinynas-labs/dashboard/src/components/{Sidebar,StatusCard,FileList,DownloadTask}.vue`
+- Create: `tiny-nas/dashboard/src/main.ts`
+- Create: `tiny-nas/dashboard/src/App.vue`
+- Create: `tiny-nas/dashboard/src/router.ts`
+- Create: `tiny-nas/dashboard/src/stores/status.ts`
+- Create: `tiny-nas/dashboard/src/views/{Dashboard,Files,Downloads,Pairing,Settings}.vue`
+- Create: `tiny-nas/dashboard/src/components/{Sidebar,StatusCard,FileList,DownloadTask}.vue`
 
 **Step 1: main.ts**
 ```ts
@@ -1099,8 +1099,8 @@ git push origin main
 ### Task 2A.3  vendor 钉版本 + 零外链审计脚本（W3 第 1 天）
 
 **Files:**
-- Create: `tinynas-labs/dashboard/scripts/build.sh`
-- Create: `tinynas-labs/dashboard/scripts/audit-no-cdn.sh`
+- Create: `tiny-nas/dashboard/scripts/build.sh`
+- Create: `tiny-nas/dashboard/scripts/audit-no-cdn.sh`
 
 **Step 1: build.sh（vendor 钉版本 + Tailwind 预编译 + 零外链审计）**
 ```bash
@@ -1176,13 +1176,13 @@ git push origin main
 ### Task 2A.4  仪表盘产物注入覆盖层（W3 第 2 天）
 
 **Files:**
-- Modify: `tinynas-labs/openwrt-imagebuilder` 仓库的 `common/tinynas-files/www/tinynas/`
+- Modify: `tiny-nas/openwrt-imagebuilder` 仓库的 `common/tinynas-files/www/tinynas/`
 
 **Step 1: 从 dashboard 仓拉取构建产物**
 ```bash
 cd ~/work/tinynas
 # 拉 dashboard 最新 build 产物
-curl -fsSL "https://github.com/tinynas-labs/dashboard/releases/latest/download/dashboard.tar.gz" -o /tmp/dashboard.tar.gz 2>/dev/null \
+curl -fsSL "https://github.com/tiny-nas/dashboard/releases/latest/download/dashboard.tar.gz" -o /tmp/dashboard.tar.gz 2>/dev/null \
   || (cd dashboard && npm run build && tar czf /tmp/dashboard.tar.gz dist/)
 ```
 
@@ -1248,7 +1248,7 @@ du -sh common/tinynas-files/www/tinynas/
 
 **Step 1: 远端创建空仓库**
 ```bash
-gh repo create tinynas-labs/luci-theme-tinynas --org tinynas-labs \
+gh repo create tiny-nas/luci-theme-tinynas --org tiny-nas \
   --description "锦盒 TinyNAS LuCI 统一主题（fork luci-theme-bootstrap，锦盒设计令牌）" \
   --public
 ```
@@ -1257,7 +1257,7 @@ gh repo create tinynas-labs/luci-theme-tinynas --org tinynas-labs \
 ```bash
 cd ~/work/tinynas
 git clone https://github.com/openwrt/luci.git luci-upstream  # 只为拷模版骨架
-git clone https://github.com/tinynas-labs/luci-theme-tinynas.git
+git clone https://github.com/tiny-nas/luci-theme-tinynas.git
 cd luci-theme-tinynas
 git remote add upstream https://github.com/openwrt/luci.git
 # 拷 luci-theme-bootstrap 作为基础
@@ -1399,7 +1399,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: 对比 SPA 仓令牌
         run: |
-          curl -fsSL https://raw.githubusercontent.com/tinynas-labs/dashboard/main/design-tokens.json -o /tmp/spa.json
+          curl -fsSL https://raw.githubusercontent.com/tiny-nas/dashboard/main/design-tokens.json -o /tmp/spa.json
           diff htdocs/luci-static/tinynas/design-tokens.json /tmp/spa.json || (echo "❌ 令牌与 SPA 仓不一致"; exit 1)
           echo "✅ 令牌一致"
 ```
@@ -1675,7 +1675,7 @@ git commit -m "feat(luci-theme-tinynas): System/Admin/Services/Logs 主题"
 
 **Files:**
 - Modify: `luci-theme-tinynas/src/scss/_layout.scss`（LuCI 主页加横幅）
-- Modify: `tinynas-labs/dashboard/src/components/Sidebar.vue`（路由器模式加 LuCI 跳转）
+- Modify: `tiny-nas/dashboard/src/components/Sidebar.vue`（路由器模式加 LuCI 跳转）
 
 **Step 1: LuCI 主页加锦盒横幅（路由器模式必备）**
 ```scss
@@ -1785,11 +1785,11 @@ git commit -m "perf(luci-theme-tinynas): 128MB RAM optimization + compat regress
 ### Task 3.1  pairing 仓库初始化（W2 第 4 天）
 
 **Files:**
-- Create: `tinynas-labs/pairing/`（独立仓）
+- Create: `tiny-nas/pairing/`（独立仓）
 
 **Step 1: 远端创建**
 ```bash
-gh repo create tinynas-labs/pairing --org tinynas-labs \
+gh repo create tiny-nas/pairing --org tiny-nas \
   --description "锦盒 TinyNAS 云端配对服务（Rust + Axum + SQLite）" \
   --public
 ```
@@ -1797,7 +1797,7 @@ gh repo create tinynas-labs/pairing --org tinynas-labs \
 **Step 2: 本地克隆 + Rust 工程脚手架**
 ```bash
 cd ~/work/tinynas
-git clone https://github.com/tinynas-labs/pairing.git
+git clone https://github.com/tiny-nas/pairing.git
 cd pairing
 cargo init --name tinynas-pairing
 ```
@@ -1840,8 +1840,8 @@ git push origin main
 ### Task 3.2  SQLite schema + 迁移（W2 第 4 天）
 
 **Files:**
-- Create: `tinynas-labs/pairing/migrations/001_init.sql`
-- Create: `tinynas-labs/pairing/src/db.rs`
+- Create: `tiny-nas/pairing/migrations/001_init.sql`
+- Create: `tiny-nas/pairing/src/db.rs`
 
 **Step 1: schema**
 ```sql
@@ -1911,11 +1911,11 @@ git push origin main
 ### Task 3.3  四个核心 API 路由（W2 第 5 天）
 
 **Files:**
-- Create: `tinynas-labs/pairing/src/main.rs`
-- Create: `tinynas-labs/pairing/src/routes/devices.rs`
-- Create: `tinynas-labs/pairing/src/routes/pair.rs`
-- Create: `tinynas-labs/pairing/src/routes/nats.rs`
-- Create: `tinynas-labs/pairing/src/routes/stats.rs`
+- Create: `tiny-nas/pairing/src/main.rs`
+- Create: `tiny-nas/pairing/src/routes/devices.rs`
+- Create: `tiny-nas/pairing/src/routes/pair.rs`
+- Create: `tiny-nas/pairing/src/routes/nats.rs`
+- Create: `tiny-nas/pairing/src/routes/stats.rs`
 
 **Step 1: main.rs（Axum 启动）**
 ```rust
@@ -2175,7 +2175,7 @@ source $HOME/.cargo/env
 useradd -r -s /usr/sbin/nologin tinynas-pairing || true
 mkdir -p /opt/tinynas/pairing/data
 cd /opt/tinynas/pairing
-git clone https://github.com/tinynas-labs/pairing.git .
+git clone https://github.com/tiny-nas/pairing.git .
 cargo build --release
 
 cat > /etc/systemd/system/tinynas-pairing.service <<EOF
@@ -2297,7 +2297,7 @@ git push origin main
 **Step 1: 设备端：消费 pairing 凭据的 NATS Consumer 真实实现**
 
 **Files:**
-- Create: `tinynas-labs/openwrt-imagebuilder/common/tinynas-files/usr/bin/tinynas-nats-consumer`（重写）
+- Create: `tiny-nas/openwrt-imagebuilder/common/tinynas-files/usr/bin/tinynas-nats-consumer`（重写）
 
 ```bash
 # 该脚本在 SP-3 中替换 V1 stub
@@ -2378,11 +2378,11 @@ git checkout main && ./scripts/sync-common-to-branches.sh 2>&1 | tail -3
 ### Task 4.1  插件仓库初始化（W3 第 4 天）
 
 **Files:**
-- Create: `tinynas-labs/chrome-extension/`（独立仓或 `tinynas-labs/dashboard/extension/` 子目录；建议独立仓）
+- Create: `tiny-nas/chrome-extension/`（独立仓或 `tiny-nas/dashboard/extension/` 子目录；建议独立仓）
 
 **Step 1: 远端创建**
 ```bash
-gh repo create tinynas-labs/chrome-extension --org tinynas-labs \
+gh repo create tiny-nas/chrome-extension --org tiny-nas \
   --description "锦盒 TinyNAS 浏览器插件（Chrome MV3 + nats.ws）" \
   --public
 ```
@@ -2390,7 +2390,7 @@ gh repo create tinynas-labs/chrome-extension --org tinynas-labs \
 **Step 2: 本地克隆 + manifest.json**
 ```bash
 cd ~/work/tinynas
-git clone https://github.com/tinynas-labs/chrome-extension.git
+git clone https://github.com/tiny-nas/chrome-extension.git
 cd chrome-extension
 
 mkdir -p icons src
@@ -2430,9 +2430,9 @@ git push origin main
 ### Task 4.2  background.js + nats.ws（W3 第 5 天）
 
 **Files:**
-- Create: `tinynas-labs/chrome-extension/src/background.js`
-- Create: `tinynas-labs/chrome-extension/src/nats-client.js`
-- Create: `tinynas-labs/chrome-extension/vendor/nats.ws.js`（vendor 钉版本）
+- Create: `tiny-nas/chrome-extension/src/background.js`
+- Create: `tiny-nas/chrome-extension/src/nats-client.js`
+- Create: `tiny-nas/chrome-extension/vendor/nats.ws.js`（vendor 钉版本）
 
 **Step 1: vendor nats.ws（钉版本，零外链运行时）**
 ```bash
@@ -2598,11 +2598,11 @@ git commit -m "docs: CRX offline install instructions"
 ### Task 5.1  批量激活码生成器（W3 第 5 天）
 
 **Files:**
-- Create: `tinynas-labs/tools/activator/`（独立仓 `tinynas-labs/tools` 或本地工具仓）
+- Create: `tiny-nas/tools/activator/`（独立仓 `tiny-nas/tools` 或本地工具仓）
 
 **Step 1: 远端仓**
 ```bash
-gh repo create tinynas-labs/tools --org tinynas-labs \
+gh repo create tiny-nas/tools --org tiny-nas \
   --description "锦盒 TinyNAS 渠道工具（激活码生成器、刷机 SOP、话术）" \
   --public
 ```
@@ -2610,7 +2610,7 @@ gh repo create tinynas-labs/tools --org tinynas-labs \
 **Step 2: 本地克隆 + 生成器骨架**
 ```bash
 cd ~/work/tinynas
-git clone https://github.com/tinynas-labs/tools.git
+git clone https://github.com/tiny-nas/tools.git
 cd tools
 mkdir -p activator
 ```
@@ -2723,7 +2723,7 @@ git push origin main
 ### Task 5.2  渠道水印构建脚本 + Release 脚本（W4 第 1 天）
 
 **Files:**
-- Create: `tinynas-labs/openwrt-imagebuilder/scripts/release-channel.sh`
+- Create: `tiny-nas/openwrt-imagebuilder/scripts/release-channel.sh`
 
 **Step 1: release-channel.sh**
 ```bash
@@ -2808,9 +2808,9 @@ git commit -m "feat(scripts): release-channel.sh (per-channel firmware + activat
 ### Task 5.3  SOP 图文 + 视频脚本（W4 第 2 天）
 
 **Files:**
-- Create: `tinynas-labs/tools/sop/刷机SOP.md`
-- Create: `tinynas-labs/tools/sop/视频脚本.md`
-- Create: `tinynas-labs/tools/话术/店铺话术模板.md`
+- Create: `tiny-nas/tools/sop/刷机SOP.md`
+- Create: `tiny-nas/tools/sop/视频脚本.md`
+- Create: `tiny-nas/tools/话术/店铺话术模板.md`
 
 **Step 1: 刷机 SOP（图文）**
 ```bash
@@ -2823,7 +2823,7 @@ cat > sop/刷机SOP.md <<'EOF'
 **预计耗时**：首次 30 分钟（含读文档）；熟练后 10 分钟
 
 ## Step 1：准备（5 分钟）
-- 下载 [最新固件](https://github.com/tinynas-labs/openwrt-imagebuilder/releases) 的 `openwrt_tinynas-pro-n1_vX.Y.Z-stable_<date>.img.gz`
+- 下载 [最新固件](https://github.com/tiny-nas/openwrt-imagebuilder/releases) 的 `openwrt_tinynas-pro-n1_vX.Y.Z-stable_<date>.img.gz`
 - 用 BalenaEtcher 写入 U 盘
 - **不拔** U 盘
 
@@ -2919,7 +2919,7 @@ cat > 话术/店铺话术模板.md <<'EOF'
 **硬件问题**（如扩容焊接故障）：店铺负责，免费重焊或换机
 **软件问题**：我方终身支持，微信/QQ 群
 
-**合规说明**：本固件基于 [OpenWrt 25.12.5](https://openwrt.org/) 深度定制，遵循 GPL v2 开源协议，构建脚本公开在 [github.com/tinynas-labs](https://github.com/tinynas-labs)。
+**合规说明**：本固件基于 [OpenWrt 25.12.5](https://openwrt.org/) 深度定制，遵循 GPL v2 开源协议，构建脚本公开在 [github.com/tiny-nas](https://github.com/tiny-nas)。
 
 ## 不准说的话
 ❌ "自主研发操作系统"（违反 GPL）
@@ -3174,4 +3174,4 @@ Plan 完整保存在 `docs/plan/2026-08-28-tinynas-v1-delivery.md`（git 跟踪�
 
 **推荐组合**：机械任务（仓库脚手架、SCSS 变量生成、CI 配置、文档）用 Subagent 派工；**关键链路任务（M1 真机验收、SP-3↔SP-4 端到端、SP-5 渠道隔离验证、V1.0 GA 发布）必须 Inline 由本人执行**。
 
-**搭档（SP-2B）的开工包**：本 plan 的 SP-2B 章节 + [Doc 9 视觉 DNA](https://github.com/tinynas-labs) + Task 2B.1~2B.8 顺序执行；每日站会同步设计令牌变更。
+**搭档（SP-2B）的开工包**：本 plan 的 SP-2B 章节 + [Doc 9 视觉 DNA](https://github.com/tiny-nas) + Task 2B.1~2B.8 顺序执行；每日站会同步设计令牌变更。
