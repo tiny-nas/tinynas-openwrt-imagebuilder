@@ -1,0 +1,69 @@
+#!/bin/sh
+# CGI: POST /cgi-bin/license-import — Ed25519 离线许可证导入与验证
+# 信封（POST body，≤8192B）:
+#   TINYNAS-LICENSE-V1
+#   <base64(payload-json)>
+#   <base64(signature)>          # 签名对象 = 解码后的 payload 原始字节
+# payload JSON 时间字段为 epoch 整数（规避 busybox date 解析；V1/5 ISO 字段为序列化差异，已注记）
+printf 'Content-Type: application/json\r\n\r\n'
+
+PUB="${TINYNAS_PUB:-/etc/tinynas/ed25519-pub.key}"
+M="${TINYNAS_MACHINE_ID:-/usr/bin/tinynas-machine-id}"
+STATE="${TINYNAS_STATE_DIR:-/etc/tinynas}"
+
+err() { printf '{"status":"error","msg":"%s"}' "$1"; exit 0; }
+
+[ -x "$M" ] || err "not ready · machine-id missing · retry"
+[ -s "$PUB" ] || err "公钥缺失 · 联系发行方 · 重试"
+
+n=${CONTENT_LENGTH:-0}
+if [ "$n" -gt 0 ] 2>/dev/null; then
+    [ "$n" -le 8192 ] || err "许可证过大 · 检查文件 · 重试"
+    body=$(head -c "$n")
+else
+    body=$(cat)
+fi
+[ -n "$body" ] || err "空的请求 · 粘贴许可证 · 重试"
+
+ver=$(printf '%s\n' "$body" | awk 'NR==1{print $0; exit}')
+pl=$(printf '%s\n'  "$body" | awk 'NR==2{print $1; exit}')
+sg=$(printf '%s\n'  "$body" | awk 'NR==3{print $1; exit}')
+[ "$ver" = "TINYNAS-LICENSE-V1" ] || err "格式错误 · 需要 V1 信封 · 重试"
+[ -n "$pl" ] && [ -n "$sg" ] || err "格式错误 · 信封不完整 · 重试"
+
+tmp=$(mktemp 2>/dev/null) || tmp="/tmp/.tinynas-li-$$"
+printf '%s' "$pl" | openssl base64 -d -A > "$tmp.payload" 2>/dev/null && \
+    printf '%s' "$sg" | openssl base64 -d -A > "$tmp.sig" 2>/dev/null || {
+        rm -f "$tmp.payload" "$tmp.sig"; err "base64 解码失败 · 检查许可证 · 重试"; }
+
+# payload 字段提取：目标机 jsonfilter；宿主/无 jsonfilter 时 python3 兜底
+payload_get() {
+    if command -v jsonfilter >/dev/null 2>&1; then
+        jsonfilter -s "$(cat "$tmp.payload")" -e "$1" 2>/dev/null
+    else
+        python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d.get(sys.argv[2],""))' "$tmp.payload" "${1#@.}" 2>/dev/null
+    fi
+}
+
+if openssl pkeyutl -verify -pubin -inkey "$PUB" -rawin -in "$tmp.payload" -sigfile "$tmp.sig" >/dev/null 2>&1; then
+    machine_id=$($M --display 2>/dev/null)
+    pm=$(payload_get '@.machine_id')
+    iat=$(payload_get '@.issued_at')
+    sup=$(payload_get '@.support_until')
+    now=$(date +%s)
+    if [ "$pm" != "$machine_id" ]; then
+        err "证书与本机不匹配 · 核对 machine_id · 重试"
+    elif [ -z "$iat" ] || [ "$now" -lt "$iat" ] || { [ -n "$sup" ] && [ "$now" -gt "$sup" ]; }; then
+        err "证书不在有效期 · 联系卖家 · 重试"
+    else
+        lid=$(payload_get '@.license_id')
+        mkdir -p "$STATE"
+        printf 'machine_id=%s\nlicense_id=%s\nactivated_at=%s\n' "$machine_id" "$lid" "$now" > "$STATE/.activated"
+        [ -x /etc/init.d/tinynas-boot ] && /etc/init.d/tinynas-boot start 2>/dev/null
+        logger -t tinynas "license accepted: license_id=$lid machine_id=$machine_id"
+        printf '{"status":"ok","machine_id":"%s"}' "$machine_id"
+    fi
+else
+    err "签名验证失败 · 核对许可证 · 重试"
+fi
+rm -f "$tmp.payload" "$tmp.sig"
