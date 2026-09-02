@@ -1,0 +1,35 @@
+#!/bin/sh /etc/rc.common
+# tinynas-boot — 激活状态机（S99，uHTTPd/fstab 之后）
+# 未激活: uHTTPd 根路径劫持到向导 + Samba 只读
+# 已激活: 解除劫持 + 拉起全家服务（幂等，可重复调用）
+START=99
+STOP=90
+
+apply_state() {
+    mkdir -p /etc/tinynas
+    if [ ! -f /etc/tinynas/.activated ]; then
+        uci set uhttpd.main.index_page='tinynas-wizard.html'
+        uci -q set samba4.@samba[0].read_only='yes' 2>/dev/null
+        uci commit uhttpd
+        uci -q commit samba4 2>/dev/null
+        /etc/init.d/uhttpd restart 2>/dev/null
+        logger -t tinynas "unactivated: wizard hijack enabled, samba read-only"
+    else
+        uci set uhttpd.main.index_page='index.html'
+        uci -q set samba4.@samba[0].read_only='no' 2>/dev/null
+        uci commit uhttpd
+        uci -q commit samba4 2>/dev/null
+        /etc/init.d/samba4 restart 2>/dev/null
+        /etc/init.d/minidlna restart 2>/dev/null
+        /etc/init.d/aria2 restart 2>/dev/null
+        # NATS consumer（S3 交付；存在凭据才拉起）
+        if [ -x /usr/bin/tinynas-nats-consumer ] && [ -s /etc/tinynas/nats.creds ]; then
+            /etc/init.d/tinynas-nats restart 2>/dev/null
+        fi
+        logger -t tinynas "activated: full service state applied"
+    fi
+}
+
+boot() { apply_state; }
+start() { apply_state; }
+restart() { apply_state; }
