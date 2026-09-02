@@ -1,0 +1,13 @@
+#!/bin/sh
+# 50-tinynas-disk — 磁盘健康前置钩子（不挂载！block-mount 10-mount 已负责挂载，军规 5）
+# 新机械盘接入 → 后台排队快速扫描（tinynas-disk-check 属 P1 交付，存在才调用）
+[ "$ACTION" = "add" ] || exit 0
+case "$DEVNAME" in sd[a-z]) : ;; *) exit 0 ;; esac
+[ "$(cat "/sys/block/$DEVNAME/queue/rotational" 2>/dev/null)" = "1" ] || exit 0
+if [ -x /usr/bin/tinynas-disk-check ]; then
+    logger -t tinynas "new HDD $DEVNAME — quick scan queued"
+    (/usr/bin/tinynas-disk-check "/dev/$DEVNAME" quick >/dev/null 2>&1 &)
+else
+    logger -t tinynas "new HDD $DEVNAME detected (disk-check not installed)"
+fi
+exit 0
