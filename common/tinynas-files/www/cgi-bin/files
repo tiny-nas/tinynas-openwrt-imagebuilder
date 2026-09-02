@@ -1,0 +1,33 @@
+#!/bin/sh
+# CGI: GET /cgi-bin/files?path=/Movies → 目录列表 JSON
+# 白名单根 /mnt/usb/share；拒绝绝对路径与 .. 穿越；文件名转义安全输出
+ROOT="${TINYNAS_SHARE_ROOT:-/mnt/usb/share}"
+printf 'Content-Type: application/json\r\n\r\n'
+qs="$QUERY_STRING"
+[ -n "$qs" ] || { printf '{"entries":[]}'; exit 0; }
+sub=$(printf '%s' "$qs" | sed -n 's/^path=//p' | tr -d '\n\r')
+# 百分号解码（%xx → 字符；uhttpd 已解一次基本编码，此处兜底 %20 空格等）
+sub=$(printf '%b' "$(printf '%s' "$sub" | sed 's/%/\\x/g')")
+sub=${sub#/}   # 契约：path 为根相对（允许前导 /）；剥掉一个前导斜杠后仅拒绝 ..
+case "$sub" in
+    *..*) printf '{"error":"forbidden"}'; exit 0 ;;
+esac
+dir="$ROOT${sub:+/$sub}"
+[ -d "$dir" ] || { printf '{"error":"not_found"}'; exit 0; }
+tmp=$(mktemp 2>/dev/null) || tmp="/tmp/.tinynas-files-$$"
+ls -A "$dir" 2>/dev/null | while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    esc=$(printf '%s' "$name" | sed 's/\\/\\\\/g; s/"/\\"/g')
+    if [ -d "$dir/$name" ]; then
+        t=dir; sz=0
+    else
+        t=file
+        sz=$(wc -c < "$dir/$name" 2>/dev/null | tr -d ' ')
+        [ -n "$sz" ] || sz=0
+    fi
+    printf '{"name":"%s","type":"%s","size":%s}\n' "$esc" "$t" "$sz"
+done > "$tmp"
+# 行间补逗号（sed 连接，无子 shell 状态问题）
+body=$(sed '$!s/$/,/' "$tmp" | tr -d '\n')
+rm -f "$tmp"
+printf '{"entries":[%s]}' "$body"
