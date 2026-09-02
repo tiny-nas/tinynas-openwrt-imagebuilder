@@ -1,0 +1,17 @@
+config samba
+	option workgroup 'WORKGROUP'
+	option server_string 'TinyNAS'
+	option netbios_name 'TinyNAS'
+	option name_resolve_order 'bcast host'
+	option server_min_protocol 'SMB2'
+	option server_max_protocol 'SMB3'
+	option discoverable 'yes'
+	option read_only 'yes'
+
+config sambashare
+	option name 'share'
+	option path '/mnt/usb/share'
+	option read_only 'no'
+	option guest_ok 'yes'
+	option create_mask '0666'
+	option dir_mask '0777'

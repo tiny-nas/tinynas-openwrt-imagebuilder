@@ -1,0 +1,9 @@
+#!/bin/sh
+# 50-tinynas-uhttpd — 首启幂等配置（执行后由 init.d/boot 删除）
+# 只补缺失项，绝不覆盖 tinynas-boot 管理的 index_page（军规 3：幂等 + exit 0）
+[ -f /etc/config/uhttpd ] || exit 0
+uci -q get uhttpd.main.rfc1918_filter >/dev/null || uci set uhttpd.main.rfc1918_filter='1'
+uci -q get uhttpd.main.cgi_prefix >/dev/null || uci set uhttpd.main.cgi_prefix='/cgi-bin'
+uci -q get uhttpd.main.home >/dev/null || uci set uhttpd.main.home='/www'
+uci commit uhttpd
+exit 0

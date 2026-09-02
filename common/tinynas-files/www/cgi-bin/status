@@ -1,0 +1,20 @@
+#!/bin/sh
+# CGI: GET /cgi-bin/status → 负载/内存/磁盘/服务/元信息（5s 轮询预算 ≤200ms，无外部依赖）
+# 测试: TINYNAS_PROC_ROOT=<fixture> 注入虚拟 /proc
+P="${TINYNAS_PROC_ROOT:-}"
+printf 'Content-Type: application/json\r\n\r\n'
+load=$(awk '{print $1}' "${P}/proc/loadavg" 2>/dev/null); load=${load:-0}
+mem_total=$(awk '/MemTotal/{print $2}' "${P}/proc/meminfo" 2>/dev/null); mem_total=${mem_total:-0}
+mem_avail=$(awk '/MemAvailable/{print $2}' "${P}/proc/meminfo" 2>/dev/null); mem_avail=${mem_avail:-0}
+df_line=$(df -k /mnt/usb/share 2>/dev/null | awk 'END{print $2" "$3}')
+disk_total=${df_line%% *}
+disk_used=${df_line##* }
+[ -n "$disk_total" ] && [ "$disk_total" != "$df_line" ] || { disk_total=0; disk_used=0; }
+svc() { pgrep -f "$1" >/dev/null 2>&1 && echo on || echo off; }
+tier=$(sed -n 's/^TIER=//p' /etc/tinynas/tier 2>/dev/null); tier=${tier:-pro}
+ver=$(sed -n 's/^VERSION=//p' /etc/tinynas/version 2>/dev/null); ver=${ver:-unknown}
+act=unactivated
+[ -f "${TINYNAS_STATE_DIR:-/etc/tinynas}/.activated" ] && act=activated
+printf '{"cpu_load":%s,"mem_total_kb":%s,"mem_avail_kb":%s,"disk_total_kb":%s,"disk_used_kb":%s,"services":{"samba":"%s","minidlna":"%s","aria2":"%s"},"tier":"%s","version":"%s","activation":"%s"}' \
+    "$load" "$mem_total" "$mem_avail" "$disk_total" "$disk_used" \
+    "$(svc samba4)" "$(svc minidlna)" "$(svc aria2d)" "$tier" "$ver" "$act"

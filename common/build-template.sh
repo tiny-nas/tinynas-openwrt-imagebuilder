@@ -122,6 +122,48 @@ echo "VERSION=v${VERSION}"  > files/etc/tinynas/version
 echo "CHANNEL=${CHANNEL}"   > files/etc/tinynas/channel
 echo "BUILD=${DATE}"        > files/etc/tinynas/build
 
+# --------- 3a. Ed25519 验证公钥注入（license-import 依赖）---------
+if [ -n "${TINYNAS_ED25519_PUBKEY:-}" ] && [ -s "${TINYNAS_ED25519_PUBKEY}" ]; then
+    cp "${TINYNAS_ED25519_PUBKEY}" files/etc/tinynas/ed25519-pub.key
+    log "Ed25519 验证公钥已注入: ${TINYNAS_ED25519_PUBKEY}"
+else
+    cp "${SCRIPT_DIR}/tinynas-files/etc/tinynas/ed25519-pub.key.example" files/etc/tinynas/ed25519-pub.key 2>/dev/null || \
+        warn "未找到公钥占位模板"
+    warn "TINYNAS_ED25519_PUBKEY 未设置 —— 产物将无法通过许可证真实验证（仅体验固件可接受）"
+fi
+
+# --------- 3b. 可执行权限审计（FILES= 的 cp 保留权限位，源缺 +x 则镜像缺）---------
+BAD_PERM=$(find files/etc/init.d files/etc/uci-defaults files/www/cgi-bin files/usr/bin files/etc/hotplug.d -type f 2>/dev/null | while read -r f; do
+    case "$f" in
+        */uci-defaults/*) : ;;  # uci-defaults 由 sh source，不需要 +x
+        *) [ -x "$f" ] || echo "$f" ;;
+    esac
+done)
+if [ -n "${BAD_PERM}" ]; then
+    fail "以下文件缺少可执行位（IB cp -a 会保留源权限）:
+${BAD_PERM}"
+fi
+log "可执行权限审计通过"
+
+# --------- 3c. 军规门禁（V1-Arch §5.3）---------
+LINT_FAIL=0
+for f in files/etc/init.d/*; do
+    [ -f "$f" ] || continue
+    head -1 "$f" | grep -q '/etc/rc\.common' || { echo "[lint] 缺 rc.common shebang: $f"; LINT_FAIL=1; }
+    grep -q '^START='        "$f" || { echo "[lint] 缺 START=: $f"; LINT_FAIL=1; }
+done
+if [ -d files/etc/rc.d ]; then
+    echo "[lint] 覆盖层禁止手放 /etc/rc.d/（IB prepare_rootfs 自动 enable）"; LINT_FAIL=1
+fi
+for f in files/etc/uci-defaults/*; do
+    [ -f "$f" ] || continue
+    tail -1 "$f" | grep -q '^exit 0$' || { echo "[lint] uci-defaults 未以 exit 0 结尾: $f"; LINT_FAIL=1; }
+done
+if grep -rqE '(src|href)="https?://' files/www/ 2>/dev/null; then
+    echo "[lint] 前端出现公网外链（零 CDN 军规）:"; grep -rlE '(src|href)="https?://' files/www/; LINT_FAIL=1
+fi
+[ "$LINT_FAIL" -eq 0 ] || fail "覆盖层军规门禁未通过"
+
 # --------- 4. 拼装 PACKAGES（common + tier + arch 三层叠加）---------
 COMMON_PKGS=$(grep -v '^#' "${SCRIPT_DIR}/packages.common.txt" | tr '\n' ' ')
 TIER_PKGS_FILE="${SCRIPT_DIR}/packages.tier-${TIER}.txt"
@@ -155,7 +197,8 @@ for f in \
     "bin/targets/${TARGET_PATH}/"*-sysupgrade.bin \
     "bin/targets/${TARGET_PATH}/"*-factory.bin \
     "bin/targets/${TARGET_PATH}/"*-combined.img.gz \
-    "bin/targets/${TARGET_PATH}/"*-combined-efi.img.gz; do
+    "bin/targets/${TARGET_PATH}/"*-combined-efi.img.gz \
+    "bin/targets/${TARGET_PATH}/"*rootfs.tar.gz; do
     [ -f "$f" ] || continue
     base=$(basename "$f")
     kind=""

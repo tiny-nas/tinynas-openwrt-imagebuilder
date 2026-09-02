@@ -1,0 +1,11 @@
+#!/bin/sh
+# CGI: GET /cgi-bin/machine-id → {display_machine_id, device_id, pairing_code}
+# pairing_code = SHA256(display_machine_id + YYYYMMDDHH) 前 6 位大写（小时轮换，仅配对引导用）
+printf 'Content-Type: application/json\r\n\r\n'
+M="${TINYNAS_MACHINE_ID:-/usr/bin/tinynas-machine-id}"
+[ -x "$M" ] || { printf '{"error":"not_ready"}'; exit 0; }
+DISPLAY=$($M --display 2>/dev/null)
+[ -n "$DISPLAY" ] || { printf '{"error":"not_ready"}'; exit 0; }
+DEVICE=$($M --device 2>/dev/null)
+CODE=$(printf '%s%s' "$DISPLAY" "$(date +%Y%m%d%H 2>/dev/null)" | openssl dgst -sha256 | sed 's/^.*= //' | cut -c1-6 | tr 'a-f' 'A-F')
+printf '{"display_machine_id":"%s","device_id":"%s","pairing_code":"%s"}' "$DISPLAY" "$DEVICE" "$CODE"

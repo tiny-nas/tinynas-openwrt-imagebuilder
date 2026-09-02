@@ -1,0 +1,23 @@
+#!/bin/sh /etc/rc.common
+# tinynas-license-check — 开机指纹复核（S98，先于 tinynas-boot S99）
+# 重算 machine_digest 与 .activated 记录比对；硬件变更 → 撤销激活态 + syslog 告警
+START=98
+STOP=10
+
+boot() { start; }
+
+start() {
+    [ -f /etc/tinynas/.activated ] || return 0
+    M=/usr/bin/tinynas-machine-id
+    if [ ! -x "$M" ]; then
+        logger -t tinynas -p daemon.err "license-check: machine-id tool missing, keep state"
+        return 0
+    fi
+    CURRENT=$($M --display 2>/dev/null)
+    SAVED=$(awk -F= '/^machine_id=/{print $2; exit}' /etc/tinynas/.activated 2>/dev/null)
+    if [ -n "$SAVED" ] && [ -n "$CURRENT" ] && [ "$SAVED" != "$CURRENT" ]; then
+        rm -f /etc/tinynas/.activated
+        logger -t tinynas -p daemon.warn \
+            "license fingerprint mismatch (saved=$SAVED current=$CURRENT) — activation revoked"
+    fi
+}

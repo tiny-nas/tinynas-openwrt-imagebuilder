@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>锦盒 TinyNAS · 首次激活</title>
+<style>
+:root{--brand:#0a8ba9;--amber:#F59E0B;--bg:#eef5f7;--surface:#fff;--line:#d4e4e8;--ink:#163038;--dim:#648089;--ok:#087c59;--danger:#bd3e3e;--side:#113a45;--soft:#e5f7fb}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;justify-content:center;padding:38px 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:19px;max-width:560px;width:100%;height:fit-content}
+.brand{text-align:center;margin-bottom:24px}
+.brand h1{font-size:20px;font-weight:700}
+.brand p{font-size:14px;color:var(--dim);margin-top:6px}
+.step{margin-top:20px}
+.step-title{font-size:16px;font-weight:600;margin-bottom:10px}
+.step-title small{color:var(--brand);font-weight:600;margin-right:8px}
+.codebox{display:flex;gap:8px}
+.codebox input{flex:1;font:600 18px/1 ui-monospace,Menlo,monospace;letter-spacing:1px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#f4f8f9;color:var(--ink);text-transform:uppercase}
+button{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-size:14px;cursor:pointer}
+button:hover{filter:brightness(1.08)}
+button:disabled{background:var(--line);cursor:wait}
+.hint{font-size:12px;color:var(--dim);margin-top:8px}
+textarea{width:100%;height:96px;font:12px ui-monospace,Menlo,monospace;padding:10px;border:1px solid var(--line);border-radius:8px;resize:vertical}
+.msg{margin-top:10px;font-size:13px;display:none;padding:8px 10px;border-radius:6px}
+.msg.ok{display:block;background:#e7f6ef;color:var(--ok)}
+.msg.err{display:block;background:#fbeeec;color:var(--danger)}
+.footer{margin-top:24px;font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:12px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <h1>锦盒 TinyNAS</h1>
+    <p>斐讯 N1 变身家庭 AI 私有云 · 首次激活</p>
+  </div>
+
+  <div class="step">
+    <div class="step-title"><small>第 1 步</small>你的设备身份</div>
+    <div class="codebox"><input id="mid" readonly placeholder="获取中…"><button onclick="cp('mid',this)">复制</button></div>
+    <div class="hint">设备编号 <span id="dev">…</span></div>
+    <div class="codebox" style="margin-top:10px"><input id="pair" readonly placeholder="…"><button onclick="cp('pair',this)">复制</button></div>
+    <div class="hint">配对码按小时轮换，供浏览器插件 / 小程序绑定使用</div>
+  </div>
+
+  <div class="step">
+    <div class="step-title"><small>第 2 步</small>导入许可证</div>
+    <textarea id="lic" placeholder="粘贴卖家提供的许可证文件内容（TINYNAS-LICENSE-V1 三行信封）"></textarea>
+    <div style="margin-top:10px;text-align:right"><button id="act" onclick="activate()">激 活</button></div>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <div class="footer">
+    ⓘ 未激活期间：文件共享只读 · 智能体与外网穿透停用<br>
+    激活为本地离线校验（Ed25519），全程无需互联网
+  </div>
+</div>
+<script>
+function cp(id,btn){var el=document.getElementById(id);el.select();try{document.execCommand('copy');btn.textContent='✓';setTimeout(function(){btn.textContent='复制'},1500)}catch(e){}}
+function show(cls,txt){var m=document.getElementById('msg');m.className='msg '+cls;m.textContent=txt}
+function activate(){
+  var btn=document.getElementById('act');btn.disabled=true;btn.textContent='验证中…';
+  var body=document.getElementById('lic').value.trim();
+  fetch('/cgi-bin/license-import',{method:'POST',headers:{'Content-Type':'text/plain'},body:body})
+    .then(function(r){return r.text()}).then(function(t){
+      var i=t.indexOf('{');var d=JSON.parse(t.slice(i));
+      if(d.status==='ok'){show('ok','激活成功 · 正在进入仪表盘');var n=3;
+        var iv=setInterval(function(){btn.textContent=n+' …';if(--n<0){clearInterval(iv);location.href='/'}},1000)}
+      else{btn.disabled=false;btn.textContent='激 活';show('err',d.msg||'激活失败 · 稍后重试')}
+    }).catch(function(){btn.disabled=false;btn.textContent='激 活';show('err','后台服务未就绪 · 稍后自动重试')});
+}
+fetch('/cgi-bin/machine-id').then(function(r){return r.text()}).then(function(t){
+  var i=t.indexOf('{');var d=JSON.parse(t.slice(i));
+  if(d.display_machine_id){document.getElementById('mid').value=d.display_machine_id;
+    document.getElementById('dev').textContent=d.device_id;
+    document.getElementById('pair').value=d.pairing_code}
+  else{show('err','后台服务未就绪 · 10 秒后自动重试');setTimeout(function(){location.reload()},10000)}
+}).catch(function(){show('err','后台服务未就绪 · 10 秒后自动重试');setTimeout(function(){location.reload()},10000)});
+</script>
+</body>
+</html>
