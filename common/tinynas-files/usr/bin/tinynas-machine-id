@@ -1,0 +1,45 @@
+#!/bin/sh
+# tinynas-machine-id — 设备机器身份（v1 闭环规格）
+# machine_digest = SHA256(versioned_length_prefixed(board_model, emmc_cid, cpu_serial, lan_mac, board_compatible))
+# display_machine_id = digest[0..16].upper()   device_id = "tn_" + digest[0..24].lower()
+# 测试: TINYNAS_SYSINFO_ROOT=<fixture> 注入虚拟 sysfs（见 tests/test-machine-id.sh）
+
+SYS="${TINYNAS_SYSINFO_ROOT:-}"
+CACHE_DIR="${TINYNAS_STATE_DIR:-/etc/tinynas}"
+
+board=$(tr -d '\000\n\r' < "${SYS}/tmp/sysinfo/board_name" 2>/dev/null)
+[ -n "$board" ] || board="no-board"
+
+cid=$(tr -d '\000\n\r ' < "${SYS}/sys/block/mmcblk0/device/cid" 2>/dev/null)
+[ -n "$cid" ] || cid="no-cid"
+
+serial=$(awk '/^Serial/{print $3; exit}' "${SYS}/proc/cpuinfo" 2>/dev/null)
+[ -n "$serial" ] || serial="no-serial"
+
+mac=$(tr -d '\000\n\r:' < "${SYS}/sys/class/net/eth0/address" 2>/dev/null)
+[ -n "$mac" ] || mac="no-mac"
+
+# compatible: NUL 分隔的多条目，取第一条 "<vendor>,<model>" 的 model 段
+compat=$(tr '\000' '\n' < "${SYS}/proc/device-tree/compatible" 2>/dev/null | head -n 1 | sed 's/^[^,]*,//')
+[ -n "$compat" ] || compat="no-compat"
+
+enc() {
+    p="$1"
+    n=$(printf '%s' "$p" | wc -c | tr -d ' ')
+    printf '%04x%s' "$n" "$p"
+}
+
+payload="v1$(enc "$board")$(enc "$cid")$(enc "$serial")$(enc "$mac")$(enc "$compat")"
+digest=$(printf '%s' "$payload" | openssl dgst -sha256 | sed 's/^.*= //')
+
+case "$1" in
+    --digest)  printf '%s\n' "$digest"; exit 0 ;;
+    --device)  printf 'tn_%s\n' "$(printf '%s' "$digest" | cut -c1-24)"; exit 0 ;;
+    --payload) printf '%s\n' "$payload"; exit 0 ;;
+esac
+
+display=$(printf '%s' "$digest" | cut -c1-16 | tr 'a-f' 'A-F')
+if mkdir -p "$CACHE_DIR" 2>/dev/null && [ -w "$CACHE_DIR" ]; then
+    printf '%s\n' "$display" > "$CACHE_DIR/.machine_id" 2>/dev/null || :
+fi
+printf '%s\n' "$display"
